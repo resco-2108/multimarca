@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <title>Multimarca · Repuestos del Automotor</title>
+  <link rel="icon" type="image/png" href="./assets/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,800;1,800;1,900&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    html,body{margin:0;padding:0;background:#EFEFEC;color:#111111;font-family:'Barlow',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+    *{box-sizing:border-box}
+    a{color:#111111;text-decoration:none} a:hover{color:#8A5F00}
+    input,select,textarea,button{font-family:inherit}
+    input:focus,select:focus,textarea:focus{outline:2px solid #F7B500;outline-offset:0}
+    ::selection{background:#F7B500;color:#0B0B0B}
+    @keyframes toastIn{from{transform:translateY(20px);opacity:0}to{transform:none;opacity:1}}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    @keyframes riseIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+    @keyframes slidePage{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:none}}
+    img,iframe{max-width:100%}
+    @media (max-width:900px){
+      [data-r="nav"]{order:3;flex-basis:100%;overflow-x:auto;justify-content:flex-start;scrollbar-width:none;margin:0 -20px;padding:0 20px;width:calc(100% + 40px)}
+      [data-r="nav"]::-webkit-scrollbar{display:none}
+      [data-r="nav"] a{white-space:nowrap}
+      [data-r="search"]{order:4;flex-basis:100%}
+      [data-r="hero"]{padding:44px 20px 40px!important;gap:28px!important}
+      [data-r="topbar-addr"]{display:none}
+      [data-r="admin-grid"]{grid-template-columns:minmax(0,1fr)!important}
+      [data-r="admin-form"]{position:static!important}
+      [data-r="section"]{padding-top:40px!important}
+    }
+    @media (max-width:520px){
+      [data-r="cards"]{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
+      [data-r="cards"] [data-r="price"]{font-size:20px!important}
+      [data-r="h2"]{font-size:32px!important}
+      [data-r="cart-row"]{grid-template-columns:52px minmax(0,1fr) auto!important}
+      [data-r="cart-qty"]{grid-column:2;grid-row:2;justify-self:start}
+      [data-r="cart-x"]{grid-column:3;grid-row:1}
+      [data-r="admin-row"]{grid-template-columns:48px minmax(0,1fr)!important}
+      [data-r="admin-row-actions"]{grid-column:1/-1}
+      [data-r="two"]{grid-template-columns:1fr!important}
+      [data-r="tabs"]{overflow-x:auto;scrollbar-width:none}
+      [data-r="tabs"] button{white-space:nowrap}
+    }
+  </style>
+</helmet>
+
+<div style="min-height:100vh;display:flex;flex-direction:column;background:#F6F6F4">
+
+  <!-- Top bar -->
+  <sc-if value="{{ showTopBar }}" hint-placeholder-val="{{ true }}">
+  <div style="background:#F7B500;color:#0B0B0B;font-size:13px;font-weight:600;padding:7px 20px;display:flex;justify-content:center;gap:24px;flex-wrap:wrap;letter-spacing:.02em">
+    <span>Lun a Vie 9 a 20:30 hs · Sáb hasta mediodía</span>
+    <span data-r="topbar-addr">·</span>
+    <span data-r="topbar-addr">Sargento Cabral 41, Tunuyán</span>
+    <span>·</span>
+    <a href="{{ waLink }}" target="_blank" style="color:#0B0B0B;text-decoration:underline">WhatsApp {{ settings.whatsapp }}</a>
+  </div>
+  </sc-if>
+
+  <!-- Header -->
+  <header style="position:sticky;top:0;z-index:40;background:#111111;border-bottom:3px solid #F7B500;box-shadow:0 8px 30px rgba(0,0,0,.18)">
+    <div style="max-width:1240px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:18px;flex-wrap:wrap">
+      <a href="#" onClick="{{ goHome }}" style="display:flex;align-items:center;flex-shrink:0">
+        <img src="./assets/logo.png" alt="Multimarca Repuestos del Automotor" style="height:54px;width:auto;display:block">
+      </a>
+      <nav data-r="nav" style="display:flex;gap:2px;font-family:'Barlow Condensed';font-weight:800;font-size:17px;text-transform:uppercase;letter-spacing:.05em">
+        <a href="#" onClick="{{ goHome }}" style="color:#FFFFFF;padding:8px 12px;border-radius:6px" style-hover="color:#F7B500;background:#1F1F1F">Inicio</a>
+        <a href="#" onClick="{{ goCatalog }}" style="color:#FFFFFF;padding:8px 12px;border-radius:6px" style-hover="color:#F7B500;background:#1F1F1F">Catálogo</a>
+        <a href="#ubicacion" onClick="{{ goUbicacion }}" style="color:#FFFFFF;padding:8px 12px;border-radius:6px" style-hover="color:#F7B500;background:#1F1F1F">Ubicación</a>
+      </nav>
+      <form data-r="search" onSubmit="{{ submitSearch }}" style="flex:1 1 220px;min-width:180px;display:flex;background:#FFFFFF;border-radius:8px;overflow:hidden">
+        <input value="{{ query }}" onChange="{{ setQuery }}" placeholder="Buscar repuesto, código o marca…" style="flex:1;min-width:0;background:transparent;border:0;color:#111111;padding:10px 14px;font-size:14px">
+        <button type="submit" style="background:#F7B500;border:0;color:#111111;font-weight:800;padding:0 16px;cursor:pointer;font-family:'Barlow Condensed';font-size:16px;text-transform:uppercase;letter-spacing:.04em">Buscar</button>
+      </form>
+      <div style="display:flex;gap:8px;align-items:center;margin-left:auto">
+        <button onClick="{{ goAdmin }}" style="background:transparent;border:1px solid #3A3A3A;color:#BDBDBD;padding:9px 14px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600" style-hover="border-color:#F7B500;color:#F7B500">Admin</button>
+        <button onClick="{{ openCart }}" style="background:#F7B500;border:0;color:#111111;padding:9px 16px;border-radius:8px;cursor:pointer;font-weight:800;font-size:14px;display:flex;align-items:center;gap:8px" style-hover="background:#FFD23F">
+          <span>Carrito</span>
+          <span style="background:#111111;color:#F7B500;border-radius:999px;min-width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;padding:0 6px">{{ cartCount }}</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= HOME ================= -->
+  <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+  <main style="flex:1">
+
+    <!-- Hero -->
+    <section style="position:relative;overflow:hidden;background:#111111;background-image:linear-gradient(45deg,rgba(255,255,255,.045) 25%,transparent 25%,transparent 75%,rgba(255,255,255,.045) 75%),linear-gradient(45deg,rgba(255,255,255,.045) 25%,transparent 25%,transparent 75%,rgba(255,255,255,.045) 75%);background-size:64px 64px;background-position:0 0,32px 32px;color:#FFFFFF">
+      <div style="position:absolute;right:-6%;top:-20%;width:34%;height:150%;background:#F7B500;transform:skewX(-14deg);pointer-events:none"></div><div style="position:absolute;right:26%;top:-20%;width:18px;height:150%;background:#F7B500;transform:skewX(-14deg);pointer-events:none"></div>
+      <div data-r="hero" style="max-width:1240px;margin:0 auto;padding:72px 20px 64px;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:40px;align-items:center;position:relative">
+        <div style="animation:riseIn .6s ease both">
+          <div style="display:inline-block;background:#F7B500;color:#0B0B0B;font-family:'Barlow Condensed';font-weight:800;font-size:15px;letter-spacing:.12em;text-transform:uppercase;padding:5px 12px;transform:skewX(-8deg);margin-bottom:22px">Tunuyán · Mendoza</div>
+          <h1 style="margin:0;font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:clamp(48px,7vw,92px);line-height:.92;text-transform:uppercase;letter-spacing:-.01em;text-wrap:balance">El repuesto que buscás, <span style="color:#F7B500">hoy mismo.</span></h1>
+          <p style="margin:22px 0 0;max-width:520px;color:#CFCFCA;font-size:18px;line-height:1.5;text-wrap:pretty">Stock real de frenos, suspensión, distribución, lubricantes y más para todas las marcas. Comprá online, retirá en el local o coordinamos el envío a tu casa.</p>
+          <div style="display:flex;gap:12px;margin-top:30px;flex-wrap:wrap">
+            <button onClick="{{ goCatalog }}" style="background:#F7B500;color:#0B0B0B;border:0;padding:16px 28px;border-radius:8px;cursor:pointer;font-family:'Barlow Condensed';font-weight:800;font-size:20px;text-transform:uppercase;letter-spacing:.04em" style-hover="background:#FFD23F">Ver catálogo</button>
+            <a href="{{ waLink }}" target="_blank" style="background:transparent;color:#FFFFFF;border:1px solid #5A5A5A;padding:16px 28px;border-radius:8px;font-family:'Barlow Condensed';font-weight:800;font-size:20px;text-transform:uppercase;letter-spacing:.04em" style-hover="border-color:#F7B500;color:#F7B500;background:rgba(247,181,0,.08)">Pedir presupuesto</a>
+          </div>
+        </div>
+        <!-- Vehicle finder -->
+        <div style="background:#FFFFFF;border:0;border-radius:14px;padding:26px;color:#111111;box-shadow:0 30px 70px rgba(0,0,0,.45);animation:riseIn .7s .1s ease both;position:relative;z-index:1">
+          <div style="font-family:'Barlow Condensed';font-weight:800;font-size:26px;text-transform:uppercase;line-height:1">Buscá por vehículo</div>
+          <div style="color:#5C5C5C;font-size:14px;margin-top:6px">Encontrá repuestos compatibles con tu auto.</div>
+          <div style="display:grid;gap:12px;margin-top:20px">
+            <select value="{{ vehMarca }}" onChange="{{ setVehMarca }}" style="background:#F6F6F4;color:#111111;border:1px solid #C6C6C0;border-radius:8px;padding:13px 14px;font-size:15px">
+              <option value="">Marca</option>
+              <sc-for list="{{ marcasVehiculo }}" as="m" hint-placeholder-count="4"><option value="{{ m }}">{{ m }}</option></sc-for>
+            </select>
+            <input value="{{ vehModelo }}" onChange="{{ setVehModelo }}" placeholder="Modelo (ej. Gol, Corsa, 206)" style="background:#F6F6F4;color:#111111;border:1px solid #C6C6C0;border-radius:8px;padding:13px 14px;font-size:15px">
+            <button onClick="{{ searchVehicle }}" style="background:#F7B500;color:#0B0B0B;border:0;padding:14px;border-radius:8px;cursor:pointer;font-family:'Barlow Condensed';font-weight:800;font-size:19px;text-transform:uppercase;letter-spacing:.04em" style-hover="background:#FFD23F">Buscar repuestos</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Categorías -->
+    <section data-r="section" style="max-width:1240px;margin:0 auto;padding:56px 20px 24px">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap">
+        <h2 data-r="h2" style="margin:0;font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:40px;text-transform:uppercase;line-height:1">Categorías</h2>
+        <a href="#" onClick="{{ goCatalog }}" style="font-weight:600;font-size:14px">Ver todo el catálogo →</a>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-top:22px">
+        <sc-for list="{{ categoriasHome }}" as="c" hint-placeholder-count="10">
+          <button onClick="{{ c.go }}" style="background:#FFFFFF;border:1px solid #E1E1DC;border-radius:10px;padding:20px 16px;text-align:left;cursor:pointer;color:#111111;display:flex;flex-direction:column;gap:10px;transition:transform .2s,border-color .2s" style-hover="background:#111111;color:#FFFFFF;border-color:#111111;transform:translateY(-3px)">
+            <span style="font-family:'Barlow Condensed';font-weight:900;font-style:italic;font-size:30px;color:#F7B500;line-height:1">{{ c.num }}</span>
+            <span style="font-family:'Barlow Condensed';font-weight:800;font-size:19px;text-transform:uppercase;letter-spacing:.03em">{{ c.name }}</span>
+            <span style="color:#6B6B6B;font-size:12px">{{ c.count }} productos</span>
+          </button>
+        </sc-for>
+      </div>
+    </section>
+
+    <!-- Destacados -->
+    <section style="max-width:1240px;margin:0 auto;padding:40px 20px 56px">
+      <h2 data-r="h2" style="margin:0;font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:40px;text-transform:uppercase;line-height:1">Destacados</h2>
+      <div data-r="cards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px;margin-top:22px">
+        <sc-for list="{{ destacados }}" as="p" hint-placeholder-count="4">
+          <div onClick="{{ p.open }}" style="background:#FFFFFF;border:1px solid #E1E1DC;border-radius:12px;overflow:hidden;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.04);display:flex;flex-direction:column;transition:transform .2s,border-color .2s,box-shadow .2s" style-hover="transform:translateY(-4px);border-color:#111111;box-shadow:0 16px 34px rgba(0,0,0,.12)">
+            <div style="aspect-ratio:4/3;background:linear-gradient(160deg,#EDEDEA,#DCDCD7);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden">
+              <sc-if value="{{ p.hasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ p.img }}" alt="{{ p.nombre }}" style="width:100%;height:100%;object-fit:cover;display:block"></sc-if>
+              <sc-if value="{{ p.noImg }}" hint-placeholder-val="{{ true }}"><span style="font-family:'Barlow Condensed';font-weight:900;font-style:italic;font-size:64px;color:#C6C6C0;text-transform:uppercase">{{ p.categoria }}</span></sc-if>
+              <span style="position:absolute;top:10px;left:10px;background:#F7B500;color:#0B0B0B;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;padding:4px 8px;border-radius:4px">{{ p.marca }}</span>
+            </div>
+            <div style="padding:14px 16px 16px;display:flex;flex-direction:column;gap:6px;flex:1">
+              <div style="font-weight:600;font-size:15px;line-height:1.3">{{ p.nombre }}</div>
+              <div style="color:#6B6B6B;font-size:12px">{{ p.codigo }} · {{ p.categoria }}</div>
+              <div style="margin-top:auto;display:flex;justify-content:space-between;align-items:center;padding-top:8px">
+                <span data-r="price" style="font-family:'Barlow Condensed';font-weight:900;font-size:26px;color:#111111">{{ p.precioFmt }}</span>
+                <span style="font-size:12px;color:{{ p.stockColor }};font-weight:600">{{ p.stockLabel }}</span>
+              </div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <!-- Marcas -->
+    <section data-r="section" style="max-width:1240px;margin:0 auto;padding:56px 20px 24px">
+      <div style="display:inline-block;background:#111111;color:#F7B500;font-family:'Barlow Condensed';font-weight:800;font-size:15px;letter-spacing:.14em;text-transform:uppercase;padding:5px 10px;transform:skewX(-8deg)">Trabajamos con</div>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:16px">
+        <sc-for list="{{ marcasRepuestos }}" as="m" hint-placeholder-count="8">
+          <span style="border:1px solid #D6D6D1;border-radius:6px;padding:10px 18px;font-family:'Barlow Condensed';font-weight:800;font-size:20px;text-transform:uppercase;letter-spacing:.06em;color:#3A3A3A">{{ m }}</span>
+        </sc-for>
+      </div>
+    </section>
+
+    <!-- Horarios + Ubicación -->
+    <section id="ubicacion" style="max-width:1240px;margin:0 auto;padding:40px 20px 72px;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px">
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div style="background:#F7B500;color:#0B0B0B;border-radius:14px;padding:28px">
+          <div style="font-family:'Barlow Condensed';font-weight:900;font-style:italic;font-size:38px;text-transform:uppercase;line-height:.95">Te esperamos</div>
+          <div style="margin-top:16px;display:grid;gap:8px;font-weight:600;font-size:16px">
+            <div style="display:flex;justify-content:space-between;border-bottom:1px solid rgba(0,0,0,.2);padding-bottom:6px"><span>Lunes a viernes</span><span>9 a 20:30 hs</span></div>
+            <div style="display:flex;justify-content:space-between;border-bottom:1px solid rgba(0,0,0,.2);padding-bottom:6px"><span>Sábados</span><span>hasta mediodía</span></div>
+            <div style="display:flex;justify-content:space-between"><span>Domingos</span><span>Cerrado</span></div>
+          </div>
+        </div>
+        <div style="background:#FFFFFF;border:1px solid #E1E1DC;border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:8px">
+          <div style="font-family:'Barlow Condensed';font-weight:800;font-size:22px;text-transform:uppercase">Sargento Cabral 41</div>
+          <div style="color:#5C5C5C">Tunuyán, Mendoza</div>
+          <a href="{{ waLink }}" target="_blank" style="margin-top:8px;background:#25D366;color:#0B0B0B;border-radius:8px;padding:13px;text-align:center;font-weight:700;font-size:16px" style-hover="background:#3FE07A">WhatsApp {{ settings.whatsapp }}</a>
+          <a href="https://maps.app.goo.gl/mTRHQt5AuNTVxmUm9" target="_blank" style="border:1px solid #C6C6C0;border-radius:8px;padding:12px;text-align:center;font-weight:600;color:#111111" style-hover="border-color:#111111;color:#111111">Cómo llegar</a>
+        </div>
+      </div>
+      <iframe title="Ubicación Multimarca" src="https://www.google.com/maps?q=Sargento+Cabral+41,+Tunuy%C3%A1n,+Mendoza,+Argentina&z=16&output=embed" style="width:100%;min-height:380px;height:100%;border:0;border-radius:14px;filter:grayscale(.2) contrast(1.05)" loading="lazy" allowfullscreen=""></iframe>
+    </section>
+  </main>
+  </sc-if>
+
+  <!-- ================= CATÁLOGO ================= -->
+  <sc-if value="{{ isCatalog }}" hint-placeholder-val="{{ false }}">
+  <main style="flex:1;max-width:1240px;margin:0 auto;padding:36px 20px 72px;width:100%">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap">
+      <div>
+        <div style="color:#111111;font-family:'Barlow Condensed';font-weight:800;font-size:15px;letter-spacing:.14em;text-transform:uppercase">Catálogo</div>
+        <h1 style="margin:4px 0 0;font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:clamp(32px,6vw,48px);text-transform:uppercase;line-height:1;overflow-wrap:anywhere">{{ catalogTitle }}</h1>
+      </div>
+      <div style="color:#6B6B6B;font-size:14px">{{ resultCount }} resultados</div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:22px">
+      <sc-for list="{{ catChips }}" as="c" hint-placeholder-count="6">
+        <button onClick="{{ c.go }}" style="background:{{ c.bg }};color:{{ c.color }};border:1px solid {{ c.border }};border-radius:999px;padding:8px 16px;cursor:pointer;font-weight:600;font-size:14px" style-hover="border-color:#111111">{{ c.name }}</button>
+      </sc-for>
+    </div>
+    <sc-if value="{{ hasVehFilter }}" hint-placeholder-val="{{ false }}">
+      <div style="margin-top:14px;display:inline-flex;align-items:center;gap:10px;background:#FFFFFF;border:1px solid #F7B500;border-radius:8px;padding:8px 12px;font-size:14px">Compatibles con <strong>{{ vehLabel }}</strong><button onClick="{{ clearVehicle }}" style="background:transparent;border:0;color:#111111;cursor:pointer;font-weight:700">Quitar ✕</button></div>
+    </sc-if>
+    <div data-r="cards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px;margin-top:26px">
+      <sc-for list="{{ results }}" as="p" hint-placeholder-count="8">
+        <div onClick="{{ p.open }}" style="background:#FFFFFF;border:1px solid #E1E1DC;border-radius:12px;overflow:hidden;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.04);display:flex;flex-direction:column;transition:transform .2s,border-color .2s,box-shadow .2s" style-hover="transform:translateY(-4px);border-color:#111111;box-shadow:0 16px 34px rgba(0,0,0,.12)">
+          <div style="aspect-ratio:4/3;background:linear-gradient(160deg,#EDEDEA,#DCDCD7);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden">
+            <sc-if value="{{ p.hasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ p.img }}" alt="{{ p.nombre }}" style="width:100%;height:100%;object-fit:cover;display:block"></sc-if>
+            <sc-if value="{{ p.noImg }}" hint-placeholder-val="{{ true }}"><span style="font-family:'Barlow Condensed';font-weight:900;font-style:italic;font-size:64px;color:#C6C6C0;text-transform:uppercase">{{ p.categoria }}</span></sc-if>
+            <span style="position:absolute;top:10px;left:10px;background:#F7B500;color:#0B0B0B;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;padding:4px 8px;border-radius:4px">{{ p.marca }}</span>
+          </div>
+          <div style="padding:14px 16px 16px;display:flex;flex-direction:column;gap:6px;flex:1">
+            <div style="font-weight:600;font-size:15px;line-height:1.3">{{ p.nombre }}</div>
+            <div style="color:#6B6B6B;font-size:12px">{{ p.codigo }} · {{ p.categoria }}</div>
+            <div style="margin-top:auto;display:flex;justify-content:space-between;align-items:center;padding-top:8px">
+              <span data-r="price" style="font-family:'Barlow Condensed';font-weight:900;font-size:26px;color:#111111">{{ p.precioFmt }}</span>
+              <span style="font-size:12px;color:{{ p.stockColor }};font-weight:600">{{ p.stockLabel }}</span>
+            </div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+    <sc-if value="{{ noResults }}" hint-placeholder-val="{{ false }}">
+      <div style="text-align:center;padding:64px 20px;color:#6B6B6B">
+        <div style="font-family:'Barlow Condensed';font-weight:800;font-size:30px;text-transform:uppercase;color:#111111">No encontramos ese repuesto</div>
+        <p style="margin:8px 0 20px">Consultanos por WhatsApp y lo conseguimos.</p>
+        <a href="{{ waLink }}" target="_blank" style="background:#25D366;color:#0B0B0B;border-radius:8px;padding:12px 22px;font-weight:700;display:inline-block">Consultar por WhatsApp</a>
+      </div>
+    </sc-if>
+  </main>
+  </sc-if>
+
+  <!-- ================= PRODUCTO ================= -->
+  <sc-if value="{{ isProduct }}" hint-placeholder-val="{{ false }}">
+  <main style="flex:1;width:100%;animation:slidePage .45s cubic-bezier(.32,.72,0,1) both">
+    <div style="max-width:1240px;margin:0 auto;padding:28px 20px 72px">
+      <a href="#" onClick="{{ backFromProduct }}" style="display:inline-flex;align-items:center;gap:8px;color:#5C5C5C;font-weight:600;font-size:14px" style-hover="color:#111111">← Volver a {{ backLabel }}</a>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:48px;margin-top:22px;align-items:start">
+        <div style="aspect-ratio:1/1;border-radius:16px;background:linear-gradient(160deg,#EDEDEA,#DCDCD7);border:1px solid #E1E1DC;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative">
+          <sc-if value="{{ sel.hasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ sel.img }}" alt="{{ sel.nombre }}" style="width:100%;height:100%;object-fit:cover;display:block"></sc-if>
+          <sc-if value="{{ sel.noImg }}" hint-placeholder-val="{{ true }}"><span style="font-family:'Barlow Condensed';font-weight:900;font-style:italic;font-size:72px;color:#C6C6C0;text-transform:uppercase;text-align:center;padding:20px">{{ sel.categoria }}</span></sc-if>
+          <span style="position:absolute;top:14px;left:14px;background:#F7B500;color:#111111;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;padding:5px 10px;border-radius:4px">{{ sel.marca }}</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:18px">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <button onClick="{{ sel.goCategoria }}" style="background:#111111;color:#F7B500;border:0;border-radius:999px;padding:6px 14px;font-size:13px;font-weight:700;cursor:pointer">{{ sel.categoria }}</button>
+            <span style="color:#6B6B6B;font-size:13px">Cód. <strong style="color:#111111;font-family:monospace;font-size:14px">{{ sel.codigo }}</strong></span>
+          </div>
+          <h1 style="margin:0;font-family:'Barlow Condensed';font-weight:900;font-size:clamp(34px,4vw,52px);line-height:1;text-wrap:balance">{{ sel.nombre }}</h1>
+          <div style="display:flex;align-items:baseline;gap:14px;flex-wrap:wrap">
+            <span style="font-family:'Barlow Condensed';font-weight:900;font-size:46px;line-height:1">{{ sel.precioFmt }}</span>
+            <span style="font-size:14px;color:{{ sel.stockColor }};font-weight:700">{{ sel.stockLabel }}</span>
+          </div>
+          <p style="margin:0;color:#3A3A3A;line-height:1.6;font-size:16px;text-wrap:pretty">{{ sel.descripcion }}</p>
+
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1px;background:#E1E1DC;border:1px solid #E1E1DC;border-radius:12px;overflow:hidden">
+            <div style="background:#FFFFFF;padding:12px 14px"><div style="font-size:11px;color:#6B6B6B;text-transform:uppercase;letter-spacing:.08em;font-weight:700">Marca</div><div style="font-weight:700;font-size:15px;margin-top:3px">{{ sel.marca }}</div></div>
+            <div style="background:#FFFFFF;padding:12px 14px"><div style="font-size:11px;color:#6B6B6B;text-transform:uppercase;letter-spacing:.08em;font-weight:700">Código</div><div style="font-weight:700;font-size:15px;margin-top:3px;font-family:monospace">{{ sel.codigo }}</div></div>
+            <div style="background:#FFFFFF;padding:12px 14px"><div style="font-size:11px;color:#6B6B6B;text-transform:uppercase;letter-spacing:.08em;font-weight:700">Categoría</div><div style="font-weight:700;font-size:15px;margin-top:3px">{{ sel.categoria }}</div></div>
+            <div style="background:#FFFFFF;padding:12px 14px"><div style="font-size:11px;color:#6B6B6B;text-transform:uppercase;letter-spacing:.08em;font-weight:700">Stock</div><div style="font-weight:700;font-size:15px;margin-top:3px">{{ sel.stockNum }}</div></div>
+          </div>
+
+          <sc-if value="{{ sel.hasSpecs }}" hint-placeholder-val="{{ false }}">
+            <div>
+              <div style="font-family:'Barlow Condensed';font-weight:800;font-size:20px;text-transform:uppercase;letter-spacing:.03em;margin-bottom:8px">Especificaciones</div>
+              <div style="display:grid;gap:0;border:1px solid #E1E1DC;border-radius:12px;overflow:hidden;background:#FFFFFF">
+                <sc-for list="{{ sel.specsList }}" as="sp" hint-placeholder-count="3">
+                  <div style="display:grid;grid-template-columns:minmax(120px,40%) 1fr;gap:12px;padding:10px 14px;border-bottom:1px solid #EFEFEC;font-size:14px"><span style="color:#6B6B6B">{{ sp.k }}</span><span style="font-weight:600">{{ sp.v }}</span></div>
+                </sc-for>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ sel.hasVeh }}" hint-placeholder-val="{{ false }}">
+            <div>
+              <div style="font-family:'Barlow Condensed';font-weight:800;font-size:20px;text-transform:uppercase;letter-spacing:.03em;margin-bottom:8px">Compatible con</div>
+              <div style="display:flex;flex-wrap:wrap;gap:6px">
+                <sc-for list="{{ sel.vehiculosList }}" as="v" hint-placeholder-count="3"><span style="background:#FFFFFF;border:1px solid #D6D6D1;border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600">{{ v }}</span></sc-for>
+              </div>
+              <div style="color:#6B6B6B;font-size:12px;margin-top:8px">Verificá el código original de tu repuesto o consultanos con el modelo, año y motor para confirmar compatibilidad.</div>
+            </div>
+          </sc-if>
+
+          <div style="display:flex;gap:10px;align-items:stretch;flex-wrap:wrap;margin-top:6px">
+            <div style="display:flex;border:1px solid #D6D6D1;border-radius:999px;overflow:hidden;background:#FFFFFF">
+              <button onClick="{{ qtyDec }}" style="background:transparent;border:0;color:#111111;width:46px;cursor:pointer;font-size:20px" style-hover="background:#EFEFEC">−</button>
+              <span style="min-width:40px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px">{{ qty }}</span>
+              <button onClick="{{ qtyInc }}" style="background:transparent;border:0;color:#111111;width:46px;cursor:pointer;font-size:20px" style-hover="background:#EFEFEC">+</button>
+            </div>
+            <button onClick="{{ addSelected }}" style="flex:1;min-width:200px;background:#F7B500;color:#111111;border:0;padding:14px 28px;border-radius:999px;cursor:pointer;font-family:'Barlow Condensed';font-weight:800;font-size:20px;text-transform:uppercase;letter-spacing:.04em" style-hover="background:#FFD23F">Agregar al carrito</button>
+          </div>
+          <a href="{{ sel.waConsulta }}" target="_blank" style="font-size:14px;font-weight:600;color:#111111;text-decoration:underline;text-underline-offset:4px;text-decoration-color:#F7B500;align-self:flex-start">Consultar por WhatsApp</a>
+        </div>
+      </div>
+
+      <sc-if value="{{ hasRelated }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:64px">
+          <h2 style="margin:0;font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:34px;text-transform:uppercase;line-height:1">Más de {{ sel.categoria }}</h2>
+          <div data-r="cards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px;margin-top:18px">
+            <sc-for list="{{ related }}" as="p" hint-placeholder-count="4">
+              <div onClick="{{ p.open }}" style="background:#FFFFFF;border:1px solid #E1E1DC;border-radius:12px;overflow:hidden;cursor:pointer;display:flex;flex-direction:column;transition:transform .2s,border-color .2s" style-hover="transform:translateY(-4px);border-color:#F7B500">
+                <div style="aspect-ratio:4/3;background:linear-gradient(160deg,#EDEDEA,#DCDCD7);display:flex;align-items:center;justify-content:center;overflow:hidden">
+                  <sc-if value="{{ p.hasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ p.img }}" alt="{{ p.nombre }}" style="width:100%;height:100%;object-fit:cover;display:block"></sc-if>
+                  <sc-if value="{{ p.noImg }}" hint-placeholder-val="{{ true }}"><span style="font-family:'Barlow Condensed';font-weight:900;font-style:italic;font-size:48px;color:#C6C6C0;text-transform:uppercase">{{ p.categoria }}</span></sc-if>
+                </div>
+                <div style="padding:12px 14px 14px;display:flex;flex-direction:column;gap:4px">
+                  <div style="font-weight:600;font-size:14px;line-height:1.3">{{ p.nombre }}</div>
+                  <div style="color:#6B6B6B;font-size:12px">{{ p.marca }} · {{ p.codigo }}</div>
+                  <div style="font-family:'Barlow Condensed';font-weight:900;font-size:22px;margin-top:4px">{{ p.precioFmt }}</div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+    </div>
+  </main>
+  </sc-if>
+
+  <!-- ================= ADMIN ================= -->
+  <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+  <main style="flex:1;width:100%">
+
+    <sc-if value="{{ adminLoggedOut }}" hint-placeholder-val="{{ true }}">
+      <div style="min-height:70vh;display:flex;align-items:center;justify-content:center;padding:40px 20px">
+        <form onSubmit="{{ adminLogin }}" style="width:100%;max-width:400px;background:#FFFFFF;border:1px solid #E1E1DC;border-radius:14px;padding:32px;display:grid;gap:14px;animation:riseIn .5s ease both">
+          <div style="font-family:'Barlow Condensed';font-weight:900;font-style:italic;font-size:36px;text-transform:uppercase;line-height:1">Panel admin</div>
+          <div style="color:#6B6B6B;font-size:14px;margin-top:-6px">Ingresá con tu cuenta de Firebase Auth.</div>
+          <label style="display:grid;gap:6px;font-size:13px;color:#5C5C5C;font-weight:600">Email<input type="email" value="{{ admin.email }}" onChange="{{ setAdminEmail }}" placeholder="admin@multimarca.com" style="background:#F6F6F4;color:#111111;border:1px solid #C6C6C0;border-radius:8px;padding:12px 14px;font-size:15px"></label>
+          <label style="display:grid;gap:6px;font-size:13px;color:#5C5C5C;font-weight:600">Contraseña<input type="password" value="{{ admin.pass }}" onChange="{{ setAdminPass }}" placeholder="••••••••" style="background:#F6F6F4;color:#111111;border:1px solid #C6C6C0;border-radius:8px;padding:12px 14px;font-size:15px"></label>
+          <sc-if value="{{ admin.error }}" hint-placeholder-val="{{ false }}"><div style="color:#FF6B6B;font-size:13px">{{ admin.error }}</div></sc-if>
+          <button type="submit" style="background:#F7B500;color:#0B0B0B;border:0;padding:14px;border-radius:8px;cursor:pointer;font-family:'Barlow Condensed';font-weight:800;font-size:20px;text-transform:uppercase;letter-spacing:.04em" style-hover="background:#FFD23F">Ingresar</button>
+          <div style="color:#9A9A9A;font-size:12px;text-align:center">Demo: admin@multimarca.com / admin123</div>
+        </form>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ admin.logged }}" hint-placeholder-val="{{ false }}">
+      <div style="max-width:1240px;margin:0 auto;padding:28px 20px 72px">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+          <div>
+            <div style="color:#111111;font-family:'Barlow Condensed';font-weight:800;font-size:15px;letter-spacing:.14em;text-transform:uppercase">Panel admin</div>
+            <h1 style="margin:4px 0 0;font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:44px;text-transform:uppercase;line-height:1">Hola, {{ adminName }}</h1>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button onClick="{{ goHome }}" style="background:transparent;border:1px solid #C6C6C0;color:#3A3A3A;padding:10px 16px;border-radius:8px;cursor:pointer;font-weight:600" style-hover="border-color:#111111;color:#111111">Ver tienda</button>
+            <button onClick="{{ adminLogout }}" style="background:transparent;border:1px solid #C6C6C0;color:#3A3A3A;padding:10px 16px;border-radius:8px;cursor:pointer;font-weight:600" style-hover="border-color:#FF6B6B;color:#FF6B6B">Salir</button>
+          </div>
+        </div>
+
+        <div data-r="tabs" style="display:flex;gap:4px;margin-top:24px;border-bottom:1px solid #E1E1DC">
+          <sc-for list="{{ adminTabs }}" as="t" hint-placeholder-count="3">
+            <button onClick="{{ t.go }}" style="background:transparent;border:0;border-bottom:3px solid {{ t.border }};color:{{ t.color }};padding:12px 18px;cursor:pointer;font-family:'Barlow Condensed';font-weight:800;font-size:18px;text-transform:uppercase;letter-spacing:.04em;margin-bottom:-1px">{{ t.label }}</button>
+          </sc-for>
+        </div>
+
+        <!-- Tab: productos -->
+        <sc-if value="{{ tabProductos }}" hint-placeholder-val="{{ true }}">
+          <div data-r="admin-grid" style="display:grid;grid-template-columns:minmax(280px,380px) minmax(0,1fr);gap:24px;margin-top:24px">
+            <form data-r="admin-form" onSubmit="{{ saveProduct }}" style="background:#FFFFFF;border:1px solid #E1E1DC;border-radius:14px;padding:22px;display:grid;gap:12px;align-self:start;position:sticky;top:96px">
+              <div style="font-family:'Barlow Condensed';font-weight:800;font-size:24px;text-transform:uppercase;line-height:1">{{ formTitle }}</div>
+              <label style="display:grid;gap:5px;font-size:12px;color:#5C5C5C;font-weight:600">Foto
+                <div style="display:flex;gap:12px;align-items:center">
+                  <div style="width:72px;height:72px;border-radius:8px;background:#F6F6F4;border:1px dashed #BDBBB3;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                    <sc-if value="{{ pfHasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ pf.img }}" alt="" style="width:100%;height:100%;object-fit:cover"></sc-if>
+                    <sc-if value="{{ pfNoImg }}" hint-placeholder-val="{{ true }}"><span style="color:#6B6B6B;font-size:11px">sin foto</span></sc-if>
+                  </div>
+                  <input type="file" accept="image/*" onChange="{{ pfImage }}" style="color:#5C5C5C;font-size:12px;min-width:0">
+                </div>
+              </label>
+              <label style="display:grid;gap:5px;font-size:12px;color:#5C5C5C;font-weight:600">Nombre *<input value="{{ pf.nombre }}" onChange="{{ pfSet.nombre }}" required="" placeholder="Kit de distribución" style="background:#F6F6F4;color:#111111;border:1px solid #C6C6C0;border-radius:8px;padding:11px 12px;font-size:14px"></label>
+              <div data-r="two" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <label style="display:grid;gap:5px;font-size:12px;color:#5C5C5C;font-weight:600">Marca<input value="{{ pf.marca }}" onChange="{{ pfSet.marca }}" placeholder="SKF" style="background:#F6F6F4;color:#111111;border:1px solid #C6C6C0;border-radius:8px;padding:11px 12px;font-size:14px"></label>
+                <label style="display:grid;gap:5px;font-size:12px;color:#5C5C5C;font-weight:600">Código<input value="{{ pf.codigo }}" onChange="{{ pfSet.codigo }}" placeholder="VKMA-01250" style="background:#F6F6F4;color:#111111;border:1px solid #C6C6C0;border-radius:8px;padding:11px 12px;font-size:14px"></label>
+              </div>
+              <label style="display:grid;gap:5px;font-size:12px;color:#5C5C5C;font-weight:600">Categoría
+                <select value="{{ pf.categoria }}" onChange="{{ pfSet.categoria }}" style="background:#F6F6F4;color:#111111;border:1px solid #C6C6C0;border-radius:8px;padding:11px 12px;font-size:14px">
+                  <sc-for list="{{ categorias }}" as="c" hint-placeholder-count="5"><option value="{{ c }}">{{ c }}</option></sc-for>
+                </select>
+              </label>
+              <div data-r="two" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <label style="display:grid;gap:5px;font-size:12px;color:#5C5C5C;font-weight:600">Precio (ARS) *<input type="number" min="0" value="{{ pf.precio }}" onChange="{{ pfSet.precio }}" required="" placeholder="45900" style="background:#F6F6F4;color:#111111;border:1px solid #C6C6C0;border-radius:8px;padding:11px 12px;font-size:14px"></label>
+                <label style="display:grid;gap:5px;font-size:12px;color:#5C5C5C;font-weight:600">Stock<input type="number" min="0" value="{{ pf.stock }}" onChange="{{ pfSet.stock }}" placeholder="10" style="background:#F6F6F4;color:#111111;border:1px solid #C6C6C0;border-radius:8px;padding:11px 12px;font-size:14px"></label>
+              </div>
+              <label style="display:grid;gap:5px;font-size:12px;color:#5C5C5C;font-weight:600">Vehículos compatibles<input value="{{ pf.vehiculos }}" onChange="{{ pfSet.vehiculos }}" placeholder="VW Gol, VW Voyage, VW Fox" style="background:#F6F6F4;color:#111111;border:1px solid #C6C6C0;border-radius:8px;padding:11px 12px;font-size:14px"></label>
+              <label style="display:grid;gap:5px;font-size:12px;color:#5C5C5C;font-weight:600">Especificaciones (una por línea, "Dato: valor")<textarea value="{{ pf.specs }}" onChange="{{ pfSet.specs }}" rows="4" placeholder="Posición: Delantero\nLado: Izquierdo\nMotor: 1.6 8v\nGarantía: 6 meses" style="background:#F6F6F4;color:#111111;border:1px solid #C6C6C0;border-radius:8px;padding:11px 12px;font-size:14px;resize:vertical;font-family:monospace"></textarea></label>
+              <label style="display:grid;gap:5px;font-size:12px;color:#5C5C5C;font-weight:600">Descripción<textarea value="{{ pf.descripcion }}" onChange="{{ pfSet.descripcion }}" rows="3" placeholder="Detalles, medidas, incluye…" style="background:#F6F6F4;color:#111111;border:1px solid #C6C6C0;border-radius:8px;padding:11px 12px;font-size:14px;resize:vertical"></textarea></label>
+              <label style="display:flex;gap:10px;align-items:center;font-size:13px;color:#3A3A3A;font-weight:600;cursor:pointer"><input type="checkbox" checked="{{ pf.destacado }}" onChange="{{ pfSet.destacado }}" style="accent-color:#111111;width:18px;height:18px">Mostrar en destacados</label>
+              <div style="display:flex;gap:8px;margin-top:4px">
+                <button type="submit" style="flex:1;background:#F7B500;color:#0B0B0B;border:0;padding:13px;border-radius:8px;cursor:pointer;font-family:'Barlow Condensed';font-weight:800;font-size:19px;text-transform:uppercase" style-hover="background:#FFD23F">{{ formCta }}</button>
+                <sc-if value="{{ editing }}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{ cancelEdit }}" style="background:transparent;border:1px solid #C6C6C0;color:#3A3A3A;padding:13px 16px;border-radius:8px;cursor:pointer;font-weight:600">Cancelar</button></sc-if>
+              </div>
+            </form>
+
+            <div style="display:grid;gap:10px;align-content:start">
+              <input value="{{ adminQuery }}" onChange="{{ setAdminQuery }}" placeholder="Filtrar productos…" style="background:#FFFFFF;color:#111111;border:1px solid #E1E1DC;border-radius:8px;padding:12px 14px;font-size:14px">
+              <sc-for list="{{ adminProducts }}" as="p" hint-placeholder-count="6">
+                <div data-r="admin-row" style="background:#FFFFFF;border:1px solid #E1E1DC;border-radius:10px;padding:12px 14px;display:grid;grid-template-columns:56px minmax(0,1fr) auto;gap:14px;align-items:center">
+                  <div style="width:56px;height:56px;border-radius:6px;background:#F6F6F4;overflow:hidden;display:flex;align-items:center;justify-content:center">
+                    <sc-if value="{{ p.hasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ p.img }}" alt="" style="width:100%;height:100%;object-fit:cover"></sc-if>
+                    <sc-if value="{{ p.noImg }}" hint-placeholder-val="{{ true }}"><span style="color:#BDBBB3;font-family:'Barlow Condensed';font-weight:900;font-size:22px">{{ p.inicial }}</span></sc-if>
+                  </div>
+                  <div style="min-width:0">
+                    <div style="font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.nombre }}</div>
+                    <div style="color:#6B6B6B;font-size:12px">{{ p.marca }} · {{ p.codigo }} · {{ p.categoria }}</div>
+                    <div style="font-size:13px;margin-top:2px"><span style="color:#111111;font-weight:700">{{ p.precioFmt }}</span> <span style="color:{{ p.stockColor }}"> · {{ p.stockLabel }}</span></div>
+                  </div>
+                  <div data-r="admin-row-actions" style="display:flex;gap:6px">
+                    <button onClick="{{ p.edit }}" style="background:transparent;border:1px solid #C6C6C0;color:#111111;padding:8px 12px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600" style-hover="border-color:#111111;color:#111111">Editar</button>
+                    <button onClick="{{ p.remove }}" style="background:transparent;border:1px solid #C6C6C0;color:#5C5C5C;padding:8px 12px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600" style-hover="border-color:#FF6B6B;color:#FF6B6B">Borrar</button>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- Tab: pedidos -->
+        <sc-if value="{{ tabPedidos }}" hint-placeholder-val="{{ false }}">
+          <div style="display:grid;gap:10px;margin-top:24px">
+            <sc-if value="{{ noOrders }}" hint-placeholder-val="{{ true }}"><div style="color:#6B6B6B;padding:40px;text-align:center;border:1px dashed #C6C6C0;border-radius:12px">Todavía no hay pedidos. Se guardan en la colección <code>orders</code> de Firestore.</div></sc-if>
+            <sc-for list="{{ ordersView }}" as="o" hint-placeholder-count="0">
+              <div style="background:#FFFFFF;border:1px solid #E1E1DC;border-radius:10px;padding:16px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px">
+                <div>
+                  <div style="font-family:'Barlow Condensed';font-weight:800;font-size:20px">#{{ o.id }} <span style="color:#6B6B6B;font-weight:400;font-size:14px;font-family:'Barlow'">· {{ o.fecha }}</span></div>
+                  <div style="font-size:14px;margin-top:4px">{{ o.cliente.nombre }}</div>
+                  <div style="color:#6B6B6B;font-size:13px">{{ o.entregaLabel }} · {{ o.pagoLabel }}</div>
+                  <div style="color:#3A3A3A;font-size:13px;margin-top:6px">{{ o.resumen }}</div>
+                </div>
+                <div style="text-align:right"><div style="font-family:'Barlow Condensed';font-weight:800;font-size:26px;color:#111111">{{ o.totalFmt }}</div><span style="background:#E9E7E0;color:#3A3A3A;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:4px 8px;border-radius:4px">{{ o.estado }}</span></div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <!-- Tab: configuración -->
+        <sc-if value="{{ tabConfig }}" hint-placeholder-val="{{ false }}">
+          <form onSubmit="{{ saveSettings }}" style="margin-top:24px;max-width:640px;background:#FFFFFF;border:1px solid #E1E1DC;border-radius:14px;padding:24px;display:grid;gap:14px">
+            <div style="font-family:'Barlow Condensed';font-weight:800;font-size:24px;text-transform:uppercase;line-height:1">Datos para transferencia</div>
+            <div style="color:#6B6B6B;font-size:13px;margin-top:-8px">Se muestran al cliente al elegir pagar por transferencia.</div>
+            <label style="display:grid;gap:5px;font-size:12px;color:#5C5C5C;font-weight:600">Alias<input value="{{ sf.alias }}" onChange="{{ sfSet.alias }}" placeholder="multimarca.repuestos" style="background:#F6F6F4;color:#111111;font-weight:700;border:1px solid #C6C6C0;border-radius:8px;padding:12px 14px;font-size:18px;font-family:'Barlow Condensed';letter-spacing:.02em"></label>
+            <div data-r="two" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+              <label style="display:grid;gap:5px;font-size:12px;color:#5C5C5C;font-weight:600">CBU / CVU<input value="{{ sf.cbu }}" onChange="{{ sfSet.cbu }}" style="background:#F6F6F4;color:#111111;border:1px solid #C6C6C0;border-radius:8px;padding:11px 12px;font-size:14px"></label>
+              <label style="display:grid;gap:5px;font-size:12px;color:#5C5C5C;font-weight:600">Banco / Billetera<input value="{{ sf.banco }}" onChange="{{ sfSet.banco }}" style="background:#F6F6F4;color:#111111;border:1px solid #C6C6C0;border-radius:8px;padding:11px 12px;font-size:14px"></label>
+            </div>
+            <label style="display:grid;gap:5px;font-size:12px;color:#5C5C5C;font-weight:600">Titular<input value="{{ sf.titular }}" onChange="{{ sfSet.titular }}" style="background:#F6F6F4;color:#111111;border:1px solid #C6C6C0;border-radius:8px;padding:11px 12px;font-size:14px"></label>
+            <div style="font-family:'Barlow Condensed';font-weight:800;font-size:24px;text-transform:uppercase;line-height:1;margin-top:10px">Contacto y envíos</div>
+            <label style="display:grid;gap:5px;font-size:12px;color:#5C5C5C;font-weight:600">WhatsApp (con código de área)<input value="{{ sf.whatsapp }}" onChange="{{ sfSet.whatsapp }}" style="background:#F6F6F4;color:#111111;border:1px solid #C6C6C0;border-radius:8px;padding:11px 12px;font-size:14px"></label>
+            <label style="display:grid;gap:5px;font-size:12px;color:#5C5C5C;font-weight:600">Nota de envío (se muestra en el checkout)<textarea value="{{ sf.envioNota }}" onChange="{{ sfSet.envioNota }}" rows="2" style="background:#F6F6F4;color:#111111;border:1px solid #C6C6C0;border-radius:8px;padding:11px 12px;font-size:14px;resize:vertical"></textarea></label>
+            <button type="submit" style="background:#F7B500;color:#0B0B0B;border:0;padding:13px;border-radius:8px;cursor:pointer;font-family:'Barlow Condensed';font-weight:800;font-size:19px;text-transform:uppercase" style-hover="background:#FFD23F">Guardar configuración</button>
+          </form>
+        </sc-if>
+      </div>
+    </sc-if>
+  </main>
+  </sc-if>
+
+  <!-- Footer -->
+  <footer style="border-top:3px solid #F7B500;background:#111111">
+    <div style="max-width:1240px;margin:0 auto;padding:36px 20px;display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;align-items:center">
+      <img src="./assets/logo.png" alt="Multimarca" style="height:48px;display:block">
+      <div style="color:#A3A3A3;font-size:13px;display:flex;gap:18px;flex-wrap:wrap">
+        <span>Sargento Cabral 41, Tunuyán · Mendoza</span>
+        <a href="{{ waLink }}" target="_blank" style="color:#F7B500">WhatsApp {{ settings.whatsapp }}</a>
+        <a href="https://instagram.com/multi_marca25" target="_blank" style="color:#F7B500">@multi_marca25</a>
+      </div>
+      <div style="color:#6B6B6B;font-size:12px">© 2026 Multimarca Repuestos del Automotor</div>
+    </div>
+  </footer>
+
+  <!-- ===== Overlay backdrop ===== -->
+  <sc-if value="{{ anyOverlay }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeAll }}" style="position:fixed;inset:0;background:rgba(20,20,20,.35);z-index:50;animation:fadeIn .25s ease both"></div>
+  </sc-if>
+
+  <!-- ===== Cart drawer ===== -->
+  <aside style="position:fixed;top:0;right:0;bottom:0;width:min(440px,100vw);background:#F6F6F4;border-left:1px solid #E1E1DC;z-index:60;transform:{{ cartTransform }};transition:transform .42s cubic-bezier(.32,.72,0,1);display:flex;flex-direction:column;box-shadow:-30px 0 80px rgba(0,0,0,.15)">
+    <div style="padding:18px 22px;border-bottom:1px solid #E1E1DC;display:flex;justify-content:space-between;align-items:center;background:#FFFFFF">
+      <div style="font-family:'Barlow Condensed';font-weight:900;font-style:italic;font-size:30px;text-transform:uppercase;line-height:1">Tu <span style="color:#F7B500">carrito</span></div>
+      <button onClick="{{ closeCart }}" style="background:transparent;border:1px solid #D6D6D1;color:#111111;width:38px;height:38px;border-radius:999px;cursor:pointer;font-size:17px" style-hover="border-color:#111111">✕</button>
+    </div>
+
+    <sc-if value="{{ orderDone }}" hint-placeholder-val="{{ false }}">
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:32px 26px;gap:12px">
+        <div style="width:68px;height:68px;border-radius:999px;background:#F7B500;color:#111111;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:900">✓</div>
+        <div style="font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:36px;text-transform:uppercase;line-height:1">¡Pedido recibido!</div>
+        <div style="color:#5C5C5C;font-size:15px;max-width:320px;text-wrap:pretty">Tu pedido <strong style="color:#111111">#{{ lastOrder.id }}</strong> quedó registrado. Si no se abrió WhatsApp, tocá el botón para enviarlo y {{ lastOrder.nextStep }}</div>
+        <a href="{{ lastOrder.waLink }}" target="_blank" style="background:#25D366;color:#FFFFFF;border-radius:999px;padding:14px 26px;font-weight:800;font-size:16px;display:inline-block;margin-top:6px" style-hover="background:#1FBF5B">Enviar por WhatsApp</a>
+        <button onClick="{{ finishCheckout }}" style="background:transparent;border:0;color:#5C5C5C;cursor:pointer;font-weight:600;font-size:14px" style-hover="color:#111111">Volver a la tienda</button>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ orderPending }}" hint-placeholder-val="{{ true }}">
+    <div style="flex:1;overflow-y:auto;padding:18px 22px 24px;display:flex;flex-direction:column;gap:22px">
+      <sc-if value="{{ cartEmpty }}" hint-placeholder-val="{{ true }}">
+        <div style="text-align:center;color:#5C5C5C;padding:48px 0 24px">
+          <div style="font-family:'Barlow Condensed';font-weight:800;font-size:26px;text-transform:uppercase;color:#111111">Está vacío</div>
+          <p style="margin:6px 0 18px">Agregá repuestos desde el catálogo.</p>
+          <button onClick="{{ goCatalogFromCart }}" style="background:#111111;color:#F7B500;border:0;padding:12px 22px;border-radius:999px;cursor:pointer;font-weight:700">Ir al catálogo</button>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ cartHasItems }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <sc-for list="{{ cartView }}" as="i" hint-placeholder-count="0">
+          <div data-r="cart-row" style="display:grid;grid-template-columns:60px minmax(0,1fr) auto auto;gap:12px;align-items:center;background:#FFFFFF;border:1px solid #E1E1DC;border-radius:12px;padding:10px">
+            <div style="width:60px;height:60px;border-radius:8px;background:#EDEDEA;overflow:hidden;display:flex;align-items:center;justify-content:center">
+              <sc-if value="{{ i.hasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ i.img }}" alt="" style="width:100%;height:100%;object-fit:cover"></sc-if>
+              <sc-if value="{{ i.noImg }}" hint-placeholder-val="{{ true }}"><span style="color:#C6C6C0;font-family:'Barlow Condensed';font-weight:900;font-size:24px">{{ i.inicial }}</span></sc-if>
+            </div>
+            <div style="min-width:0">
+              <div style="font-weight:600;font-size:14px;line-height:1.3">{{ i.nombre }}</div>
+              <div style="color:#5C5C5C;font-size:13px;margin-top:2px">{{ i.subtotalFmt }}</div>
+            </div>
+            <div data-r="cart-qty" style="display:inline-flex;align-items:center;border:1px solid #D6D6D1;border-radius:999px;overflow:hidden;background:#F6F6F4">
+              <button onClick="{{ i.dec }}" style="background:transparent;border:0;color:#111111;width:30px;height:30px;cursor:pointer;font-size:16px" style-hover="background:#E9E9E5">−</button>
+              <span style="min-width:22px;text-align:center;font-weight:700;font-size:13px">{{ i.qty }}</span>
+              <button onClick="{{ i.inc }}" style="background:transparent;border:0;color:#111111;width:30px;height:30px;cursor:pointer;font-size:16px" style-hover="background:#E9E9E5">+</button>
+            </div>
+            <button data-r="cart-x" onClick="{{ i.remove }}" style="background:transparent;border:0;color:#A3A3A3;cursor:pointer;font-size:16px;padding:4px" style-hover="color:#111111">✕</button>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="display:grid;gap:10px">
+        <div style="font-weight:700;font-size:15px">Tus datos</div>
+        <input value="{{ co.nombre }}" onChange="{{ coSet.nombre }}" placeholder="Nombre y apellido" style="background:#FFFFFF;color:#111111;border:1px solid #D6D6D1;border-radius:10px;padding:12px 14px;font-size:14px;width:100%">
+      </div>
+
+      <div style="display:grid;gap:10px">
+        <div style="font-weight:700;font-size:15px">Entrega</div>
+        <div data-r="two" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <button type="button" onClick="{{ setRetiro }}" style="background:{{ retiroBg }};color:{{ retiroColor }};border:1px solid {{ retiroBorder }};border-radius:12px;padding:16px 12px;cursor:pointer;font-weight:700;font-size:14px;display:flex;flex-direction:column;align-items:center;gap:6px"><span style="font-family:'Barlow Condensed';font-weight:800;font-size:22px;line-height:1">Local</span>Retiro en local</button>
+          <button type="button" onClick="{{ setEnvio }}" style="background:{{ envioBg }};color:{{ envioColor }};border:1px solid {{ envioBorder }};border-radius:12px;padding:16px 12px;cursor:pointer;font-weight:700;font-size:14px;display:flex;flex-direction:column;align-items:center;gap:6px"><span style="font-family:'Barlow Condensed';font-weight:800;font-size:22px;line-height:1">Envío</span>A domicilio</button>
+        </div>
+        <sc-if value="{{ isEnvio }}" hint-placeholder-val="{{ false }}">
+          <div style="background:#FFFFFF;border:1px solid #E1E1DC;border-radius:12px;padding:14px;display:grid;gap:10px">
+            <div style="font-weight:700;font-size:14px">Datos de envío</div>
+            <input value="{{ co.calle }}" onChange="{{ coSet.calle }}" placeholder="Dirección completa" style="background:#FFFFFF;color:#111111;border:1px solid #D6D6D1;border-radius:10px;padding:12px 14px;font-size:14px;width:100%">
+            <div style="display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:10px">
+              <input value="{{ co.localidad }}" onChange="{{ coSet.localidad }}" placeholder="Ciudad / Localidad" style="background:#FFFFFF;color:#111111;border:1px solid #D6D6D1;border-radius:10px;padding:12px 14px;font-size:14px;width:100%">
+              <input value="{{ co.cp }}" onChange="{{ coSet.cp }}" placeholder="CP" style="background:#FFFFFF;color:#111111;border:1px solid #D6D6D1;border-radius:10px;padding:12px 14px;font-size:14px;width:100%">
+            </div>
+            <input value="{{ co.referencias }}" onChange="{{ coSet.referencias }}" placeholder="Notas adicionales (opcional)" style="background:#FFFFFF;color:#111111;border:1px solid #D6D6D1;border-radius:10px;padding:12px 14px;font-size:14px;width:100%">
+            <div style="color:#6B6B6B;font-size:12px">{{ settings.envioNota }}</div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ isRetiro }}" hint-placeholder-val="{{ true }}">
+          <div style="color:#6B6B6B;font-size:12px">Sargento Cabral 41, Tunuyán · Lun a Vie 9 a 20:30 · Sáb hasta mediodía</div>
+        </sc-if>
+      </div>
+
+      <div style="display:grid;gap:10px">
+        <div style="font-weight:700;font-size:15px">Forma de pago</div>
+        <div data-r="two" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <button type="button" onClick="{{ setEfectivo }}" disabled="{{ isEnvio }}" style="background:{{ efectivoBg }};color:{{ efectivoColor }};border:1px solid {{ efectivoBorder }};border-radius:12px;padding:16px 12px;cursor:{{ efectivoCursor }};opacity:{{ efectivoOpacity }};font-weight:700;font-size:14px;display:flex;flex-direction:column;align-items:center;gap:6px"><span style="font-family:'Barlow Condensed';font-weight:800;font-size:22px;line-height:1">$</span>Efectivo</button>
+          <button type="button" onClick="{{ setTransfer }}" style="background:{{ transferBg }};color:{{ transferColor }};border:1px solid {{ transferBorder }};border-radius:12px;padding:16px 12px;cursor:pointer;font-weight:700;font-size:14px;display:flex;flex-direction:column;align-items:center;gap:6px"><span style="font-family:'Barlow Condensed';font-weight:800;font-size:22px;line-height:1">CBU</span>Transferencia</button>
+        </div>
+        <sc-if value="{{ isEnvio }}" hint-placeholder-val="{{ false }}"><div style="color:#6B6B6B;font-size:12px;margin-top:-2px">Los envíos se abonan por transferencia antes del despacho.</div></sc-if>
+        <sc-if value="{{ isTransfer }}" hint-placeholder-val="{{ false }}">
+          <div style="background:#FFF6DA;border:2px dashed #F7B500;border-radius:12px;padding:16px;display:grid;gap:6px">
+            <div style="font-size:13px;color:#5C5C5C">Alias para transferir</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+              <div style="font-family:'Barlow Condensed';font-weight:900;font-size:26px;line-height:1;word-break:break-all">{{ settings.alias }}</div>
+              <button type="button" onClick="{{ copyAlias }}" style="background:#F7B500;color:#111111;border:0;border-radius:999px;padding:9px 18px;cursor:pointer;font-weight:800;font-size:13px;flex-shrink:0" style-hover="background:#FFD23F">{{ copyLabel }}</button>
+            </div>
+            <div style="font-size:12px;color:#5C5C5C">{{ settings.titular }} · {{ settings.banco }} · CBU {{ settings.cbu }}</div>
+            <div style="font-size:12px;color:#6B6B6B">Transferí el total y envianos el comprobante junto con tu pedido.</div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ isEfectivo }}" hint-placeholder-val="{{ true }}">
+          <div style="color:#6B6B6B;font-size:12px">{{ efectivoHint }}</div>
+        </sc-if>
+      </div>
+      </sc-if>
+    </div>
+
+    <sc-if value="{{ cartHasItems }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:16px 22px 22px;border-top:1px solid #E1E1DC;background:#FFFFFF;display:grid;gap:12px">
+        <sc-if value="{{ formError }}" hint-placeholder-val="{{ false }}"><div style="color:#C0392B;font-size:13px;font-weight:600">{{ formError }}</div></sc-if>
+        <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-weight:700;font-size:17px">Total</span><span style="font-family:'Barlow Condensed';font-weight:900;font-size:32px;line-height:1">{{ cartTotalFmt }}</span></div>
+        <button onClick="{{ confirmOrder }}" style="background:#25D366;color:#FFFFFF;border:0;padding:16px;border-radius:999px;cursor:pointer;font-weight:800;font-size:17px;display:flex;align-items:center;justify-content:center;gap:10px" style-hover="background:#1FBF5B">Pedir por WhatsApp</button>
+      </div>
+    </sc-if>
+    </sc-if>
+  </aside>
+
+  <!-- Toast -->
+  <sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:80;background:#F7B500;color:#0B0B0B;padding:12px 20px;border-radius:8px;font-weight:700;font-size:14px;box-shadow:0 16px 34px rgba(0,0,0,.18);animation:toastIn .3s ease both;max-width:calc(100vw - 32px);text-align:center">{{ toast }}</div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;showTopBar&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Layout&quot;}}">
+// Data layer: LocalStore mimics the Firestore adapter. Swap for FirestoreStore (see README-deploy.md) — same method names.
+const CATS = ['Frenos','Suspensión','Motor','Filtros','Lubricantes','Distribución','Eléctrico','Embrague','Refrigeración','Accesorios'];
+const SEED = [
+  {id:'p1',nombre:'Kit de distribución con bomba de agua',marca:'SKF',codigo:'VKMC 01250-1',categoria:'Distribución',precio:189900,stock:6,destacado:true,vehiculos:'VW Gol Trend, VW Voyage, VW Fox, VW Suran',specs:'Contenido: Correa dentada, tensor, rodillo guía, bomba de agua\nMotor: 1.6 8v (EA111)\nDientes de correa: 137\nGarantía: 12 meses',descripcion:'Kit completo: correa dentada, tensor, rodillo y bomba de agua. Motores 1.6 8v.'},
+  {id:'p2',nombre:'Pastillas de freno delanteras',marca:'Fras-le',codigo:'PD/1062',categoria:'Frenos',precio:42500,stock:14,destacado:true,vehiculos:'Chevrolet Corsa, Chevrolet Classic, Chevrolet Celta',specs:'Posición: Delantero\nMaterial: Cerámico\nContenido: 4 pastillas\nAlto x ancho: 52 x 116 mm',descripcion:'Juego de 4 pastillas cerámicas. Bajo nivel de ruido y polvo.'},
+  {id:'p3',nombre:'Amortiguador delantero',marca:'Sachs',codigo:'313 512',categoria:'Suspensión',precio:98700,stock:4,destacado:true,vehiculos:'Peugeot 206, Peugeot 207',specs:'Posición: Delantero\nLado: Izquierdo o derecho (indistinto)\nTipo: Hidráulico presurizado a gas\nVenta: Por unidad',descripcion:'Amortiguador hidráulico presurizado a gas. Precio por unidad.'},
+  {id:'p4',nombre:'Aceite sintético 5W-30 x 4L',marca:'Gulf',codigo:'FORMULA-G-5W30',categoria:'Lubricantes',precio:67900,stock:22,destacado:true,vehiculos:'',specs:'Viscosidad: 5W-30\nBase: 100% sintético\nNormas: API SN, ACEA C3\nEnvase: 4 litros',descripcion:'Aceite 100% sintético API SN, ACEA C3. Para motores nafteros y diésel modernos.'},
+  {id:'p5',nombre:'Filtro de aceite',marca:'Mann',codigo:'W 712/75',categoria:'Filtros',precio:12900,stock:31,destacado:false,vehiculos:'Chevrolet Corsa, Chevrolet Agile, Chevrolet Onix',descripcion:'Filtro de aceite roscado con válvula antirretorno.'},
+  {id:'p6',nombre:'Kit de embrague',marca:'LuK',codigo:'620 3095 00',categoria:'Embrague',precio:214000,stock:3,destacado:false,vehiculos:'Fiat Palio, Fiat Siena, Fiat Uno',specs:'Contenido: Placa, disco, rodamiento\nDiámetro: 200 mm\nMotor: Fire 1.4 8v',descripcion:'Placa, disco y rodamiento. Motores Fire 1.4.'},
+  {id:'p7',nombre:'Batería 12V 65Ah',marca:'Moura',codigo:'M22GD',categoria:'Eléctrico',precio:158000,stock:8,destacado:false,vehiculos:'Ford Focus, Ford EcoSport, Renault Sandero, Renault Logan',specs:'Voltaje: 12V\nCapacidad: 65 Ah\nBorne positivo: Derecho\nGarantía: 18 meses',descripcion:'Batería libre de mantenimiento. 18 meses de garantía.'},
+  {id:'p8',nombre:'Bomba de agua',marca:'Dolz',codigo:'R230',categoria:'Refrigeración',precio:54300,stock:5,destacado:false,vehiculos:'Renault Clio, Renault Kangoo, Renault Sandero',descripcion:'Bomba de agua con junta. Motores K4M / K7M.'},
+  {id:'p9',nombre:'Discos de freno delanteros (par)',marca:'Fremax',codigo:'BD-4561',categoria:'Frenos',precio:89900,stock:7,destacado:false,vehiculos:'Toyota Corolla, Toyota Etios',descripcion:'Discos ventilados con tratamiento anticorrosión. Se venden en par.'},
+  {id:'p10',nombre:'Filtro de aire',marca:'Fram',codigo:'CA 10190',categoria:'Filtros',precio:15800,stock:0,destacado:false,vehiculos:'VW Gol Trend, VW Voyage',descripcion:'Filtro de aire de panel. Reemplazo cada 15.000 km.'},
+  {id:'p11',nombre:'Bujías iridio x4',marca:'NGK',codigo:'ILZKR7B-11S',categoria:'Motor',precio:38900,stock:12,destacado:false,vehiculos:'Ford Ka, Ford Fiesta, Ford Focus',descripcion:'Bujías de iridio de larga duración. Juego de 4.'},
+  {id:'p12',nombre:'Cubre alfombras de goma x4',marca:'Ruta 40',codigo:'CA-UNIV',categoria:'Accesorios',precio:19900,stock:15,destacado:false,vehiculos:'',descripcion:'Universales, recortables. Color negro.'}
+];
+const DEFAULT_SETTINGS = {alias:'multimarca.repuestos',cbu:'0000003100012345678901',banco:'Mercado Pago',titular:'Multimarca Repuestos del Automotor',whatsapp:'2622539851',envioNota:'El costo de envío se coordina por WhatsApp según la zona. Envíos a todo el Valle de Uco.'};
+
+class LocalStore {
+  constructor(){ this.products = SEED.map(p=>({...p})); this.settings = {...DEFAULT_SETTINGS}; this.orders = []; }
+  async listProducts(){ return this.products; }
+  async saveProduct(p){ if(p.id){ this.products = this.products.map(x=>x.id===p.id?p:x); } else { p.id = 'p'+Date.now(); this.products = [p,...this.products]; } return p; }
+  async deleteProduct(id){ this.products = this.products.filter(p=>p.id!==id); }
+  async getSettings(){ return this.settings; }
+  async saveSettings(s){ this.settings = {...s}; return this.settings; }
+  async createOrder(o){ o.id = String(1000 + this.orders.length + 1); o.fecha = new Date().toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}); o.estado='pendiente'; this.orders = [o,...this.orders]; return o; }
+  async listOrders(){ return this.orders; }
+  async signIn(email, pass){ if(email==='admin@multimarca.com' && pass==='admin123') return {email, name:'Multimarca'}; throw new Error('Email o contraseña incorrectos'); }
+}
+
+const fmt = n => '$ ' + Math.round(n||0).toLocaleString('es-AR');
+const emptyPf = () => ({id:null,nombre:'',marca:'',codigo:'',categoria:CATS[0],precio:'',stock:'',vehiculos:'',specs:'',descripcion:'',img:'',destacado:false});
+
+class Component extends DCLogic {
+  store = new LocalStore();
+  state = {
+    view:'home', cat:'Todas', query:'', q:'', vehMarca:'', vehModelo:'', vehFilter:null,
+    products: SEED, settings: DEFAULT_SETTINGS, orders: [],
+    selected:null, prevView:'home', qty:1, cartOpen:false, cart:[],
+    orderDone:false, formError:'', copied:false, co:{nombre:'',entrega:'retiro',calle:'',localidad:'Tunuyán',cp:'',referencias:''}, pago:'efectivo', lastOrder:null,
+    admin:{logged:false,email:'',pass:'',error:'',name:''}, adminTab:'productos', adminQuery:'', pf: emptyPf(), sf: {...DEFAULT_SETTINGS},
+    toast:''
+  };
+  async componentDidMount(){
+    const [products, settings, orders] = await Promise.all([this.store.listProducts(), this.store.getSettings(), this.store.listOrders()]);
+    this.setState({products, settings, orders, sf:{...settings}});
+  }
+  top(){ window.scrollTo({top:0,behavior:'smooth'}); }
+  scrollToId(id){ setTimeout(()=>{ const el=document.getElementById(id); if(el){ const y = el.getBoundingClientRect().top + window.scrollY - 90; window.scrollTo({top:y,behavior:'smooth'}); } }, 60); }
+  showToast(msg){ clearTimeout(this._t); this.setState({toast:msg}); this._t = setTimeout(()=>this.setState({toast:''}), 2200); }
+  decorate(p){
+    const s = this.state;
+    return {...p, precioFmt: fmt(p.precio), hasImg: !!p.img, noImg: !p.img, inicial:(p.categoria||'?')[0],
+      stockLabel: p.stock>0 ? (p.stock<=3?`Últimas ${p.stock} u.`:'En stock') : 'Sin stock · consultar', stockColor: p.stock>0 ? (p.stock<=3?'#FFB84D':'#5DD27A') : '#6B6B6B',
+      stockNum: p.stock>0 ? p.stock+' unidades' : 'Sin stock', hasSpecs: !!p.specs, specsList: (p.specs||'').split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{ const i=l.indexOf(':'); return i>0?{k:l.slice(0,i).trim(),v:l.slice(i+1).trim()}:{k:'',v:l}; }), goCategoria:()=>{ this.setState({view:'catalog',cat:p.categoria,q:'',vehFilter:null}); this.top(); }, hasVeh: !!p.vehiculos, vehiculosList: p.vehiculos ? p.vehiculos.split(',').map(v=>v.trim()).filter(Boolean) : [],
+      waConsulta: `https://wa.me/549${s.settings.whatsapp}?text=${encodeURIComponent('Hola! Quiero consultar por: '+p.nombre+' ('+p.codigo+')')}`,
+      open: (e)=>{ e&&e.preventDefault&&e.preventDefault(); const v=this.state.view; this.setState({selected:p, prevView: v==='product'?this.state.prevView:v, view:'product', cartOpen:false, qty:1}); this.top(); },
+      edit: ()=>{ this.setState({pf:{...p, precio:String(p.precio), stock:String(p.stock)}}); this.top(); },
+      remove: ()=>{ if(confirm('¿Borrar "'+p.nombre+'"?')){ this.store.deleteProduct(p.id).then(()=>this.store.listProducts()).then(products=>{ this.setState({products}); this.showToast('Producto eliminado'); }); } }
+    };
+  }
+  filtered(){
+    const s = this.state; let list = s.products;
+    if(s.cat!=='Todas') list = list.filter(p=>p.categoria===s.cat);
+    if(s.q){ const q=s.q.toLowerCase(); list = list.filter(p=>[p.nombre,p.marca,p.codigo,p.categoria,p.vehiculos].join(' ').toLowerCase().includes(q)); }
+    if(s.vehFilter){ const v=s.vehFilter.toLowerCase(); list = list.filter(p=>(p.vehiculos||'').toLowerCase().includes(v)); }
+    return list;
+  }
+  renderVals(){
+    const s = this.state, set = (patch)=>this.setState(patch);
+    const nav = (e)=>{ e&&e.preventDefault&&e.preventDefault(); };
+    const results = this.filtered().map(p=>this.decorate(p));
+    const cartView = s.cart.map(i=>{ const p = s.products.find(x=>x.id===i.id) || i.snapshot; return {...this.decorate(p), qty:i.qty, subtotalFmt: fmt(p.precio*i.qty),
+      inc:()=>set({cart:s.cart.map(c=>c.id===i.id?{...c,qty:c.qty+1}:c)}), dec:()=>set({cart:s.cart.map(c=>c.id===i.id?{...c,qty:Math.max(1,c.qty-1)}:c)}), remove:()=>set({cart:s.cart.filter(c=>c.id!==i.id)}) }; });
+    const cartTotal = s.cart.reduce((t,i)=>{ const p = s.products.find(x=>x.id===i.id)||i.snapshot; return t + p.precio*i.qty; },0);
+    const cartCount = s.cart.reduce((t,i)=>t+i.qty,0);
+    const sel = s.selected ? this.decorate(s.selected) : null;
+    const goCatalogWith = (patch)=>{ set({view:'catalog', cartOpen:false, ...patch}); this.top(); };
+    const fieldSetter = (key, field)=>(e)=>{ const v = e.target.type==='checkbox' ? e.target.checked : e.target.value; set({[key]:{...s[key],[field]:v}}); };
+    const pfSet = {}; ['nombre','marca','codigo','categoria','precio','stock','vehiculos','specs','descripcion','destacado'].forEach(f=>pfSet[f]=fieldSetter('pf',f));
+    const sfSet = {}; ['alias','cbu','banco','titular','whatsapp','envioNota'].forEach(f=>sfSet[f]=fieldSetter('sf',f));
+    const coSet = {}; ['nombre','calle','localidad','cp','referencias'].forEach(f=>coSet[f]=fieldSetter('co',f));
+    const catCount = c => s.products.filter(p=>p.categoria===c).length;
+    const entregaResumen = s.co.entrega==='envio' ? `Envío a ${s.co.calle}, ${s.co.localidad}${s.co.cp?' ('+s.co.cp+')':''}${s.co.referencias?' — '+s.co.referencias:''}. Costo a coordinar.` : 'Retiro en el local · Sargento Cabral 41, Tunuyán';
+    const waLink = `https://wa.me/549${s.settings.whatsapp}?text=${encodeURIComponent('Hola Multimarca! Quiero pedir un presupuesto.')}`;
+    return {
+      showTopBar: this.props.showTopBar ?? true,
+      settings: s.settings, waLink, query: s.query, cartCount, toast: s.toast,
+      isHome: s.view==='home', isCatalog: s.view==='catalog', isAdmin: s.view==='admin', isProduct: s.view==='product' && !!sel,
+      backFromProduct:(e)=>{ nav(e); set({view: s.prevView||'catalog'}); this.top(); }, backLabel: (s.prevView||'catalog')==='home' ? 'inicio' : 'productos',
+      related: sel ? s.products.filter(p=>p.categoria===sel.categoria && p.id!==sel.id).slice(0,4).map(p=>this.decorate(p)) : [], hasRelated: !!sel && s.products.some(p=>p.categoria===sel.categoria && p.id!==sel.id),
+      goHome:(e)=>{nav(e); set({view:'home'}); this.top();},
+      goCatalog:(e)=>{nav(e); goCatalogWith({cat:'Todas', q:'', vehFilter:null});},
+      goCatalogFromCart:()=>goCatalogWith({}),
+      goUbicacion:(e)=>{nav(e); set({view:'home'}); this.scrollToId('ubicacion');},
+      goAdmin:()=>{ set({view:'admin', cartOpen:false}); this.top(); },
+      setQuery:(e)=>set({query:e.target.value}),
+      submitSearch:(e)=>{ e.preventDefault(); goCatalogWith({q:s.query, cat:'Todas'}); },
+      // vehicle finder
+      marcasVehiculo:['Volkswagen','Chevrolet','Fiat','Renault','Peugeot','Ford','Toyota','Citroën','Honda','Nissan'],
+      vehMarca:s.vehMarca, vehModelo:s.vehModelo, setVehMarca:(e)=>set({vehMarca:e.target.value}), setVehModelo:(e)=>set({vehModelo:e.target.value}),
+      searchVehicle:()=>{ const map={Volkswagen:'VW'}; const term = (s.vehModelo || map[s.vehMarca] || s.vehMarca).trim(); goCatalogWith({vehFilter: term||null, cat:'Todas', q:''}); },
+      hasVehFilter: !!s.vehFilter, vehLabel: s.vehFilter, clearVehicle:()=>set({vehFilter:null}),
+      // home
+      categoriasHome: CATS.map((c,i)=>({name:c, num:String(i+1).padStart(2,'0'), count:catCount(c), go:()=>goCatalogWith({cat:c, q:'', vehFilter:null})})),
+      destacados: s.products.filter(p=>p.destacado).slice(0,4).map(p=>this.decorate(p)),
+      marcasRepuestos:['SKF','Fras-le','Sachs','Gulf','Mann','LuK','Moura','NGK','Fremax','Dolz','Fram','Bosch','Valeo','Gates'],
+      // catalog
+      catalogTitle: s.vehFilter ? 'Para tu '+s.vehFilter : (s.q ? `“${s.q}”` : s.cat==='Todas' ? 'Todos los repuestos' : s.cat),
+      resultCount: results.length, results, noResults: results.length===0,
+      catChips: ['Todas',...CATS].map(c=>({name:c, bg:s.cat===c?'#111111':'#FFFFFF', color:s.cat===c?'#F7B500':'#111111', border:s.cat===c?'#111111':'#D6D6D1', go:()=>set({cat:c})})),
+      // product panel
+      sel: sel||{}, qty:s.qty,
+      qtyInc:()=>set({qty:s.qty+1}), qtyDec:()=>set({qty:Math.max(1,s.qty-1)}),
+            addSelected:()=>{ const ex = s.cart.find(c=>c.id===s.selected.id); const cart = ex ? s.cart.map(c=>c.id===ex.id?{...c,qty:c.qty+s.qty}:c) : [...s.cart,{id:s.selected.id, qty:s.qty, snapshot:s.selected}]; set({cart, cartOpen:true}); this.showToast('Agregado al carrito'); },
+      // cart
+      cartTransform: s.cartOpen ? 'translateX(0)' : 'translateX(105%)', openCart:()=>set({cartOpen:true}), closeCart:()=>set({cartOpen:false}),
+      cartView, cartEmpty: s.cart.length===0, cartHasItems: s.cart.length>0, cartTotalFmt: fmt(cartTotal),
+      anyOverlay: s.cartOpen, closeAll:()=>set({cartOpen:false}),
+      // checkout
+      orderDone: s.orderDone, orderPending: !s.orderDone, formError: s.formError, co:s.co, coSet,
+      isEnvio: s.co.entrega==='envio', isRetiro: s.co.entrega!=='envio', setRetiro:()=>set({co:{...s.co,entrega:'retiro'}}), setEnvio:()=>set({co:{...s.co,entrega:'envio'}, pago:'transferencia'}),
+      retiroBg: s.co.entrega==='retiro'?'#111111':'#FFFFFF', retiroColor: s.co.entrega==='retiro'?'#F7B500':'#111111', retiroBorder: s.co.entrega==='retiro'?'#111111':'#D6D6D1',
+      envioBg: s.co.entrega==='envio'?'#111111':'#FFFFFF', envioColor: s.co.entrega==='envio'?'#F7B500':'#111111', envioBorder: s.co.entrega==='envio'?'#111111':'#D6D6D1',
+      setEfectivo:()=>{ if(s.co.entrega!=='envio') set({pago:'efectivo'}); }, efectivoCursor: s.co.entrega==='envio'?'not-allowed':'pointer', efectivoOpacity: s.co.entrega==='envio'?'.45':'1', setTransfer:()=>set({pago:'transferencia'}), isTransfer: s.pago==='transferencia', isEfectivo: s.pago==='efectivo',
+      efectivoHint: 'Pagás en efectivo al retirar en el local.',
+      efectivoBg: s.pago==='efectivo'?'#111111':'#FFFFFF', efectivoColor: s.pago==='efectivo'?'#F7B500':'#111111', efectivoBorder: s.pago==='efectivo'?'#111111':'#D6D6D1',
+      transferBg: s.pago==='transferencia'?'#111111':'#FFFFFF', transferColor: s.pago==='transferencia'?'#F7B500':'#111111', transferBorder: s.pago==='transferencia'?'#111111':'#D6D6D1',
+      copyLabel: s.copied ? 'Copiado ✓' : 'Copiar',
+      copyAlias: ()=>{ const done=()=>{ set({copied:true}); setTimeout(()=>this.setState({copied:false}),1800); }; if(navigator.clipboard) navigator.clipboard.writeText(s.settings.alias).then(done,done); else done(); },
+      confirmOrder: async ()=>{
+        if(!s.co.nombre.trim()) return set({formError:'Completá tu nombre.'});
+        if(s.co.entrega==='envio' && (!s.co.calle.trim() || !s.co.localidad.trim())) return set({formError:'Completá la dirección y la localidad para el envío.'});
+        const items = cartView.map(i=>({id:i.id, nombre:i.nombre, codigo:i.codigo, qty:i.qty, precio:i.precio}));
+        const order = await this.store.createOrder({items, total:cartTotal, cliente:{...s.co}, pago:s.pago});
+        const lines = ['*Pedido #'+order.id+' · Multimarca*', ...items.map(i=>`• ${i.qty} × ${i.nombre} (${i.codigo}) — ${fmt(i.precio*i.qty)}`), `*Total: ${fmt(cartTotal)}*`, '', `Cliente: ${s.co.nombre}`, entregaResumen, `Pago: ${s.pago==='efectivo'?'Efectivo':'Transferencia (alias '+s.settings.alias+')'}`];
+        const waLinkOrder = `https://wa.me/549${s.settings.whatsapp}?text=${encodeURIComponent(lines.join('\n'))}`;
+        const lastOrder = {...order, waLink: waLinkOrder, nextStep: s.pago==='transferencia' ? 'adjuntá el comprobante de la transferencia.' : (s.co.entrega==='envio' ? 'coordinamos el envío.' : 'te avisamos cuando esté listo para retirar.')};
+        const orders = await this.store.listOrders();
+        set({lastOrder, orders, orderDone:true, formError:'', cart:[]});
+        window.open(waLinkOrder, '_blank');
+      },
+      lastOrder: s.lastOrder||{}, finishCheckout:()=>{ set({cartOpen:false, orderDone:false, view:'home'}); this.top(); },
+      // admin
+      admin:s.admin, adminLoggedOut: !s.admin.logged, adminName: s.admin.name,
+      setAdminEmail:(e)=>set({admin:{...s.admin,email:e.target.value}}), setAdminPass:(e)=>set({admin:{...s.admin,pass:e.target.value}}),
+      adminLogin: async (e)=>{ e.preventDefault(); try{ const u = await this.store.signIn(s.admin.email, s.admin.pass); set({admin:{...s.admin,logged:true,error:'',pass:'',name:u.name}}); }catch(err){ set({admin:{...s.admin,error:err.message}}); } },
+      adminLogout:()=>set({admin:{logged:false,email:'',pass:'',error:'',name:''}, view:'home'}),
+      adminTabs:[['productos','Productos'],['pedidos','Pedidos'],['config','Configuración']].map(([k,label])=>({label, border:s.adminTab===k?'#F7B500':'transparent', color:s.adminTab===k?'#F7B500':'#5C5C5C', go:()=>set({adminTab:k})})),
+      tabProductos:s.adminTab==='productos', tabPedidos:s.adminTab==='pedidos', tabConfig:s.adminTab==='config',
+      pf:s.pf, pfSet, pfHasImg: !!s.pf.img, pfNoImg: !s.pf.img, editing: !!s.pf.id, formTitle: s.pf.id?'Editar producto':'Nuevo producto', formCta: s.pf.id?'Guardar cambios':'Publicar producto',
+      pfImage:(e)=>{ const f=e.target.files&&e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=()=>set({pf:{...this.state.pf,img:r.result}}); r.readAsDataURL(f); },
+      cancelEdit:()=>set({pf:emptyPf()}),
+      saveProduct: async (e)=>{ e.preventDefault(); const p = {...s.pf, precio:Number(s.pf.precio)||0, stock:Number(s.pf.stock)||0}; if(!p.id) delete p.id; await this.store.saveProduct(p); const products = await this.store.listProducts(); set({products, pf:emptyPf()}); this.showToast(p.id?'Producto actualizado':'Producto publicado'); },
+      categorias: CATS, adminQuery:s.adminQuery, setAdminQuery:(e)=>set({adminQuery:e.target.value}),
+      adminProducts: s.products.filter(p=>!s.adminQuery || [p.nombre,p.marca,p.codigo,p.categoria].join(' ').toLowerCase().includes(s.adminQuery.toLowerCase())).map(p=>this.decorate(p)),
+      noOrders: s.orders.length===0,
+      ordersView: s.orders.map(o=>({...o, totalFmt:fmt(o.total), entregaLabel:o.cliente.entrega==='envio'?`Envío: ${o.cliente.calle}, ${o.cliente.localidad}`:'Retiro en local', pagoLabel:o.pago==='efectivo'?'Efectivo':'Transferencia', resumen:o.items.map(i=>`${i.qty}× ${i.nombre}`).join(' · ')})),
+      sf:s.sf, sfSet, saveSettings: async (e)=>{ e.preventDefault(); const settings = await this.store.saveSettings(s.sf); set({settings}); this.showToast('Configuración guardada'); }
+    };
+  }
+}
+</script>
+</body>
+</html>
