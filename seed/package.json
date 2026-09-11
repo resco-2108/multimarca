@@ -1,0 +1,6 @@
+{
+  "name": "multimarca-seed",
+  "private": true,
+  "type": "module",
+  "dependencies": { "firebase": "^10.12.0" }
+}

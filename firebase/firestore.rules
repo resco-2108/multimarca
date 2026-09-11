@@ -1,0 +1,45 @@
+rules_version = '2';
+
+// ============================================================
+//  Multimarca — Reglas de Firestore
+//  Catálogo y configuración: lectura pública, escritura solo admin.
+//  Pedidos: los crea cualquiera desde el checkout; solo el admin los lee.
+// ============================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Los admin se crean a mano en Authentication (Email/Password).
+    function isAdmin() {
+      return request.auth != null;
+    }
+
+    match /products/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /settings/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /orders/{id} {
+      allow read, update, delete: if isAdmin();
+      allow create: if
+        request.resource.data.estado == 'pendiente' &&
+        request.resource.data.total is number &&
+        request.resource.data.total >= 0 &&
+        request.resource.data.items is list &&
+        request.resource.data.items.size() > 0 &&
+        request.resource.data.items.size() <= 60 &&
+        request.resource.data.cliente.nombre is string &&
+        request.resource.data.cliente.nombre.size() <= 120;
+    }
+
+    // Todo lo demás: cerrado.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
