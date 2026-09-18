@@ -30,8 +30,13 @@ la misma interfaz:
 
 ## Pasos que faltan en la consola de Firebase
 
-1. **Firestore** ya existe. **Storage: crear el bucket** (Build → Storage → Comenzar), si no,
-   subir fotos falla (el panel muestra el error en un toast).
+1. **Firestore** ya existe. **Storage: crear el bucket** (Build → Storage → Comenzar).
+   Hoy el bucket **no existe** (`multimarca-fd659.firebasestorage.app` → 404), así que las
+   fotos no se pueden subir: el panel guarda el producto sin foto y lo avisa en el toast.
+   Crearlo pide **plan Blaze** (proyectos nuevos ya no lo permiten en Spark); conviene dejar
+   antes un presupuesto con alerta en Cloud Billing. El uso de esta tienda entra en la capa
+   gratis (5 GB guardados, 1 GB/día de descarga), pero **solo en regiones de EE.UU.** —
+   elegir `us-central1` o `us-east1`, no São Paulo.
 2. **Authentication → Email/Password** ya está habilitado. El admin es **`admin@multimarca.com`**
    (crearlo en la consola si todavía no existe; la contraseña se define ahí, no está en el código).
 3. **Desplegar las reglas** (sin esto, la web no lee nada — hoy responde `PERMISSION_DENIED`):

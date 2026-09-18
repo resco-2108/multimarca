@@ -80,6 +80,24 @@ const AUTH_ERRORS = {
   'auth/network-request-failed': 'Sin conexión. Revisá tu internet'
 };
 
+// Storage puede no existir todavía: el bucket se crea a mano en la consola
+// (paso 1 del README-deploy.md). Sin bucket, el SDK tira storage/unknown.
+const STORAGE_ERRORS = {
+  'storage/unknown':              'falta crear el bucket de Storage en Firebase',
+  'storage/object-not-found':     'falta crear el bucket de Storage en Firebase',
+  'storage/bucket-not-found':     'falta crear el bucket de Storage en Firebase',
+  'storage/no-default-bucket':    'falta crear el bucket de Storage en Firebase',
+  'storage/project-not-found':    'falta crear el bucket de Storage en Firebase',
+  'storage/unauthorized':         'Storage rechazó la foto: reglas sin desplegar, o pesa más de 8 MB',
+  'storage/unauthenticated':      'volvé a iniciar sesión para subir fotos',
+  'storage/quota-exceeded':       'se llenó la cuota de Storage',
+  'storage/retry-limit-exceeded': 'se cortó la subida. Revisá la conexión',
+  'storage/canceled':             'se canceló la subida'
+};
+
+const storageMessage = err =>
+  STORAGE_ERRORS[err && err.code] || (err && err.message) || 'no se pudo subir la foto';
+
 const asUser = u => u ? { email: u.email, name: u.displayName || 'Multimarca', uid: u.uid } : null;
 
 // ============================================================
@@ -98,10 +116,23 @@ class FirestoreStore {
     rest.precio = Number(rest.precio) || 0;
     rest.stock = Number(rest.stock) || 0;
     rest.destacado = !!rest.destacado;
-    if (rest.img && rest.img.startsWith('data:')) rest.img = await uploadImage(pid, rest.img);
+    // La foto va a Storage antes que el documento, pero su fallo no debe costar el
+    // producto: guardamos igual sin tocar `img` (con merge queda la foto anterior si
+    // había) y avisamos después con err.productSaved, para que el panel lo distinga
+    // de un guardado que nunca ocurrió.
+    let imgError = null;
+    if (rest.img && rest.img.startsWith('data:')) {
+      try {
+        rest.img = await uploadImage(pid, rest.img);
+      } catch(err){
+        imgError = storageMessage(err);
+        delete rest.img;
+      }
+    }
     if (!id) rest.createdAt = serverTimestamp();
     rest.updatedAt = serverTimestamp();
     await setDoc(doc(db, PRODUCTS, pid), rest, { merge: true });
+    if (imgError){ const e = new Error(imgError); e.productSaved = true; throw e; }
     return { ...p, id: pid, img: rest.img || '' };
   }
 

@@ -656,10 +656,10 @@
 // offline y semilla visual (mismos métodos). Ver README-deploy.md.
 const CATS = ['Frenos','Suspensión','Motor','Filtros','Lubricantes','Distribución','Eléctrico','Embrague','Refrigeración','Accesorios'];
 const SEED = [
-  {id:'p1',nombre:'Kit de distribución con bomba de agua',marca:'SKF',codigo:'VKMC 01250-1',categoria:'Distribución',precio:189900,stock:6,destacado:true,vehiculos:'VW Gol Trend, VW Voyage, VW Fox, VW Suran',specs:'Contenido: Correa dentada, tensor, rodillo guía, bomba de agua\nMotor: 1.6 8v (EA111)\nDientes de correa: 137\nGarantía: 12 meses',descripcion:'Kit completo: correa dentada, tensor, rodillo y bomba de agua. Motores 1.6 8v.'},
-  {id:'p2',nombre:'Pastillas de freno delanteras',marca:'Fras-le',codigo:'PD/1062',categoria:'Frenos',precio:42500,stock:14,destacado:true,vehiculos:'Chevrolet Corsa, Chevrolet Classic, Chevrolet Celta',specs:'Posición: Delantero\nMaterial: Cerámico\nContenido: 4 pastillas\nAlto x ancho: 52 x 116 mm',descripcion:'Juego de 4 pastillas cerámicas. Bajo nivel de ruido y polvo.'},
-  {id:'p3',nombre:'Amortiguador delantero',marca:'Sachs',codigo:'313 512',categoria:'Suspensión',precio:98700,stock:4,destacado:true,vehiculos:'Peugeot 206, Peugeot 207',specs:'Posición: Delantero\nLado: Izquierdo o derecho (indistinto)\nTipo: Hidráulico presurizado a gas\nVenta: Por unidad',descripcion:'Amortiguador hidráulico presurizado a gas. Precio por unidad.'},
-  {id:'p4',nombre:'Aceite sintético 5W-30 x 4L',marca:'Gulf',codigo:'FORMULA-G-5W30',categoria:'Lubricantes',precio:67900,stock:22,destacado:true,vehiculos:'',specs:'Viscosidad: 5W-30\nBase: 100% sintético\nNormas: API SN, ACEA C3\nEnvase: 4 litros',descripcion:'Aceite 100% sintético API SN, ACEA C3. Para motores nafteros y diésel modernos.'},
+  {id:'p1',nombre:'Kit de distribución con bomba de agua',img:'./assets/productos/kit-distribucion.jpg',marca:'SKF',codigo:'VKMC 01250-1',categoria:'Distribución',precio:189900,stock:6,destacado:true,vehiculos:'VW Gol Trend, VW Voyage, VW Fox, VW Suran',specs:'Contenido: Correa dentada, tensor, rodillo guía, bomba de agua\nMotor: 1.6 8v (EA111)\nDientes de correa: 137\nGarantía: 12 meses',descripcion:'Kit completo: correa dentada, tensor, rodillo y bomba de agua. Motores 1.6 8v.'},
+  {id:'p2',nombre:'Pastillas de freno delanteras',img:'./assets/productos/pastillas-freno.jpg',marca:'Fras-le',codigo:'PD/1062',categoria:'Frenos',precio:42500,stock:14,destacado:true,vehiculos:'Chevrolet Corsa, Chevrolet Classic, Chevrolet Celta',specs:'Posición: Delantero\nMaterial: Cerámico\nContenido: 4 pastillas\nAlto x ancho: 52 x 116 mm',descripcion:'Juego de 4 pastillas cerámicas. Bajo nivel de ruido y polvo.'},
+  {id:'p3',nombre:'Amortiguador delantero',img:'./assets/productos/amortiguador.jpg',marca:'Sachs',codigo:'313 512',categoria:'Suspensión',precio:98700,stock:4,destacado:true,vehiculos:'Peugeot 206, Peugeot 207',specs:'Posición: Delantero\nLado: Izquierdo o derecho (indistinto)\nTipo: Hidráulico presurizado a gas\nVenta: Por unidad',descripcion:'Amortiguador hidráulico presurizado a gas. Precio por unidad.'},
+  {id:'p4',nombre:'Aceite sintético 5W-30 x 4L',img:'./assets/productos/aceite-5w30.jpg',marca:'Gulf',codigo:'FORMULA-G-5W30',categoria:'Lubricantes',precio:67900,stock:22,destacado:true,vehiculos:'',specs:'Viscosidad: 5W-30\nBase: 100% sintético\nNormas: API SN, ACEA C3\nEnvase: 4 litros',descripcion:'Aceite 100% sintético API SN, ACEA C3. Para motores nafteros y diésel modernos.'},
   {id:'p5',nombre:'Filtro de aceite',marca:'Mann',codigo:'W 712/75',categoria:'Filtros',precio:12900,stock:31,destacado:false,vehiculos:'Chevrolet Corsa, Chevrolet Agile, Chevrolet Onix',descripcion:'Filtro de aceite roscado con válvula antirretorno.'},
   {id:'p6',nombre:'Kit de embrague',marca:'LuK',codigo:'620 3095 00',categoria:'Embrague',precio:214000,stock:3,destacado:false,vehiculos:'Fiat Palio, Fiat Siena, Fiat Uno',specs:'Contenido: Placa, disco, rodamiento\nDiámetro: 200 mm\nMotor: Fire 1.4 8v',descripcion:'Placa, disco y rodamiento. Motores Fire 1.4.'},
   {id:'p7',nombre:'Batería 12V 65Ah',marca:'Moura',codigo:'M22GD',categoria:'Eléctrico',precio:158000,stock:8,destacado:false,vehiculos:'Ford Focus, Ford EcoSport, Renault Sandero, Renault Logan',specs:'Voltaje: 12V\nCapacidad: 65 Ah\nBorne positivo: Derecho\nGarantía: 18 meses',descripcion:'Batería libre de mantenimiento. 18 meses de garantía.'},
@@ -828,7 +828,19 @@ class Component extends DCLogic {
       pf:s.pf, pfSet, pfHasImg: !!s.pf.img, pfNoImg: !s.pf.img, editing: !!s.pf.id, formTitle: s.pf.id?'Editar producto':'Nuevo producto', formCta: s.pf.id?'Guardar cambios':'Publicar producto',
       pfImage:(e)=>{ const f=e.target.files&&e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=()=>set({pf:{...this.state.pf,img:r.result}}); r.readAsDataURL(f); },
       cancelEdit:()=>set({pf:emptyPf()}),
-      saveProduct: async (e)=>{ e.preventDefault(); const p = {...s.pf, precio:Number(s.pf.precio)||0, stock:Number(s.pf.stock)||0}; if(!p.id) delete p.id; try{ await this.store.saveProduct(p); const products = await this.store.listProducts(); set({products, pf:emptyPf()}); this.showToast(p.id?'Producto actualizado':'Producto publicado'); }catch(err){ this.showToast('No se pudo guardar: '+err.message); } },
+      saveProduct: async (e)=>{
+        e.preventDefault();
+        const p = {...s.pf, precio:Number(s.pf.precio)||0, stock:Number(s.pf.stock)||0};
+        const editing = !!p.id; if(!p.id) delete p.id;
+        const ok = editing ? 'Producto actualizado' : 'Producto publicado';
+        const refresh = async ()=>{ const products = await this.store.listProducts().catch(()=>s.products); set({products, pf:emptyPf()}); };
+        try{ await this.store.saveProduct(p); await refresh(); this.showToast(ok); }
+        catch(err){
+          // err.productSaved: el documento sí quedó escrito y lo único que falló fue la foto.
+          if(!err.productSaved) return this.showToast('No se pudo guardar: '+err.message);
+          await refresh(); this.showToast(ok+', pero sin la foto: '+err.message);
+        }
+      },
       categorias: CATS, adminQuery:s.adminQuery, setAdminQuery:(e)=>set({adminQuery:e.target.value}),
       adminProducts: s.products.filter(p=>!s.adminQuery || [p.nombre,p.marca,p.codigo,p.categoria].join(' ').toLowerCase().includes(s.adminQuery.toLowerCase())).map(p=>this.decorate(p)),
       noOrders: s.orders.length===0,
