@@ -30,7 +30,6 @@ service cloud.firestore {
     match /orders/{id} {
       allow read, update, delete: if isAdmin();
       allow create: if
-        request.resource.data.estado == 'pendiente' &&
         request.resource.data.total is number &&
         request.resource.data.total >= 0 &&
         request.resource.data.items is list &&

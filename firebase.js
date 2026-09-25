@@ -129,9 +129,9 @@ class FirestoreStore {
     const { id, ...rest } = p;
     const pid = id || doc(collection(db, PRODUCTS)).id;
     rest.precio = Number(rest.precio) || 0;
-    rest.stock = Number(rest.stock) || 0;
     rest.destacado = !!rest.destacado;
     rest.img = rest.img || '';
+    delete rest.stock; // el stock no se maneja en esta tienda
     if (!id) rest.createdAt = serverTimestamp();
     rest.updatedAt = serverTimestamp();
     await setDoc(doc(db, PRODUCTS, pid), rest, { merge: true });
@@ -167,7 +167,7 @@ class FirestoreStore {
   async createOrder(o){
     const numero = String(Date.now()).slice(-6);
     const fecha = new Date().toLocaleDateString('es-AR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
-    const base = { ...o, numero, fecha, estado: 'pendiente' };
+    const base = { ...o, numero, fecha };
     const r = await addDoc(collection(db, ORDERS), { ...base, createdAt: serverTimestamp() });
     return { ...base, id: numero, docId: r.id };
   }

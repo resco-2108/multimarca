@@ -85,14 +85,16 @@ Igual que en acuarela, tres capas:
 
 ## Colecciones
 
-- `products/{id}`: nombre, marca, codigo, categoria, precio (number), stock (number),
+- `products/{id}`: nombre, marca, codigo, categoria, precio (number),
   destacado (bool), vehiculos, specs, descripcion, img (data URL JPEG comprimida), createdAt, updatedAt
 - `orders/{id}`: items[], total, cliente{nombre, entrega, calle, localidad, cp, referencias},
-  pago, numero, fecha, estado, createdAt
+  pago, numero, fecha, createdAt
 - `settings/store` (doc único): alias, cbu, banco, titular, whatsapp, envioNota
 
 ## Cloudflare
 
 - Sitio estático: `wrangler pages deploy .` (Pages) o Worker con `[assets] directory`.
 - Las claves de `firebase-config.js` son públicas: la seguridad la dan las reglas + Auth.
+- `.assetsignore` deja fuera del deploy los archivos de trabajo (README, reglas, `seed/`, `uploads/`,
+  config de Firebase): mencionan el email del admin y no hacen falta para el sitio.
 - Favicon: `assets/favicon.png`. Dominio custom + SSL desde el dashboard.

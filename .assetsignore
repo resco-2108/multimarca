@@ -1,0 +1,14 @@
+# Cloudflare no publica esto: son archivos de trabajo, no del sitio.
+# README y reglas mencionan el email del admin; seed/ tiene el script de carga.
+.assetsignore
+.git
+.claude
+.DS_Store
+**/.DS_Store
+.firebaserc
+firebase.json
+firebase/
+seed/
+uploads/
+README-deploy.md
+assets/logo-multimarca.jpeg
