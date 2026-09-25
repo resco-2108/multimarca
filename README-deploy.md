@@ -89,7 +89,8 @@ Igual que en acuarela, tres capas:
   destacado (bool), vehiculos, specs, descripcion, img (data URL JPEG comprimida), createdAt, updatedAt
 - `orders/{id}`: items[], total, cliente{nombre, entrega, calle, localidad, cp, referencias},
   pago, numero, fecha, createdAt
-- `settings/store` (doc único): alias, cbu, banco, titular, whatsapp, envioNota
+- `settings/store` (doc único): alias, cbu, banco, titular, whatsapp, envioNota, categorias (array de strings), marcas (array de strings).
+  Las dos listas se editan en Panel → Configuración; si el doc no las tiene, se usan las de `index.html` (`CATS`, `MARCAS`).
 
 ## Cloudflare
 

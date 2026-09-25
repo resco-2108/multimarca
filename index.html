@@ -213,6 +213,7 @@
     </sc-if>
 
     <!-- Marcas -->
+    <sc-if value="{{ hasMarcas }}" hint-placeholder-val="{{ true }}">
     <section data-r="section" style="max-width:1240px;margin:0 auto;padding:56px 20px 24px">
       <div style="display:inline-block;background:#111111;color:#F7B500;font-family:'Barlow Condensed';font-weight:800;font-size:15px;letter-spacing:.14em;text-transform:uppercase;padding:5px 10px;transform:skewX(-8deg)">Trabajamos con</div>
       <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:16px">
@@ -221,6 +222,7 @@
         </sc-for>
       </div>
     </section>
+    </sc-if>
 
     <!-- Horarios + Ubicación -->
     <section id="ubicacion" style="max-width:1240px;margin:0 auto;padding:40px 20px 72px;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px">
@@ -439,7 +441,7 @@
                 <label style="display:grid;gap:5px;font-size:12px;color:#5C5C5C;font-weight:600">Código<input value="{{ pf.codigo }}" onChange="{{ pfSet.codigo }}" placeholder="VKMA-01250" style="background:#F6F6F4;color:#111111;border:1px solid #C6C6C0;border-radius:8px;padding:11px 12px;font-size:14px"></label>
               </div>
               <label style="display:grid;gap:5px;font-size:12px;color:#5C5C5C;font-weight:600">Categoría
-                <select value="{{ pf.categoria }}" onChange="{{ pfSet.categoria }}" style="background:#F6F6F4;color:#111111;border:1px solid #C6C6C0;border-radius:8px;padding:11px 12px;font-size:14px">
+                <select value="{{ pfCategoria }}" onChange="{{ pfSet.categoria }}" style="background:#F6F6F4;color:#111111;border:1px solid #C6C6C0;border-radius:8px;padding:11px 12px;font-size:14px">
                   <sc-for list="{{ categorias }}" as="c" hint-placeholder-count="5"><option value="{{ c }}">{{ c }}</option></sc-for>
                 </select>
               </label>
@@ -519,6 +521,27 @@
             <label style="display:grid;gap:5px;font-size:12px;color:#5C5C5C;font-weight:600">Nota de envío (se muestra en el checkout)<textarea value="{{ sf.envioNota }}" onChange="{{ sfSet.envioNota }}" rows="2" style="background:#F6F6F4;color:#111111;border:1px solid #C6C6C0;border-radius:8px;padding:11px 12px;font-size:14px;resize:vertical"></textarea></label>
             <button type="submit" style="background:#F7B500;color:#0B0B0B;border:0;padding:13px;border-radius:8px;cursor:pointer;font-family:'Barlow Condensed';font-weight:800;font-size:19px;text-transform:uppercase" style-hover="background:#FFD23F">Guardar configuración</button>
           </form>
+          <div style="margin-top:18px;max-width:640px;background:#FFFFFF;border:1px solid #E1E1DC;border-radius:14px;padding:24px;display:grid;gap:14px">
+            <div style="font-family:'Barlow Condensed';font-weight:800;font-size:24px;text-transform:uppercase;line-height:1">Categorías y marcas</div>
+            <div style="color:#6B6B6B;font-size:13px;margin-top:-8px">Las categorías arman el menú del catálogo y el inicio; las marcas, la sección “Trabajamos con”.</div>
+            <sc-for list="{{ listEditors }}" as="L" hint-placeholder-count="2">
+              <div style="display:grid;gap:8px;margin-top:6px">
+                <div style="font-size:12px;color:#5C5C5C;font-weight:700;text-transform:uppercase;letter-spacing:.06em">{{ L.title }}</div>
+                <div style="display:flex;flex-wrap:wrap;gap:8px">
+                  <sc-for list="{{ L.items }}" as="it" hint-placeholder-count="4">
+                    <span style="display:inline-flex;align-items:center;gap:8px;background:#F6F6F4;border:1px solid #D6D6D1;border-radius:999px;padding:6px 8px 6px 14px;font-size:14px;font-weight:600;color:#111111">{{ it.name }}<span style="color:#6B6B6B;font-weight:400;font-size:12px">{{ it.sub }}</span><button type="button" onClick="{{ it.remove }}" aria-label="Quitar {{ it.name }}" style="background:transparent;border:0;color:#6B6B6B;cursor:pointer;font-size:15px;line-height:1;padding:2px 4px;border-radius:50%" style-hover="color:#FF6B6B">✕</button></span>
+                  </sc-for>
+                  <sc-if value="{{ L.empty }}" hint-placeholder-val="{{ false }}"><span style="color:#6B6B6B;font-size:13px">{{ L.emptyMsg }}</span></sc-if>
+                </div>
+                <form onSubmit="{{ L.add }}" style="display:flex;gap:8px">
+                  <input value="{{ L.draft }}" onChange="{{ L.setDraft }}" maxlength="40" placeholder="{{ L.placeholder }}" style="flex:1;min-width:0;background:#F6F6F4;color:#111111;border:1px solid #C6C6C0;border-radius:8px;padding:10px 12px;font-size:14px">
+                  <button type="submit" style="background:#111111;color:#F7B500;border:0;padding:10px 16px;border-radius:8px;cursor:pointer;font-weight:700;font-size:14px" style-hover="background:#2A2A2A">Agregar</button>
+                </form>
+              </div>
+            </sc-for>
+            <sc-if value="{{ listsDirty }}" hint-placeholder-val="{{ false }}"><div style="color:#B07F00;font-size:13px;font-weight:600">Tenés cambios sin guardar.</div></sc-if>
+            <button type="button" onClick="{{ saveSettings }}" style="background:#F7B500;color:#0B0B0B;border:0;padding:13px;border-radius:8px;cursor:pointer;font-family:'Barlow Condensed';font-weight:800;font-size:19px;text-transform:uppercase" style-hover="background:#FFD23F">Guardar categorías y marcas</button>
+          </div>
         </sc-if>
       </div>
     </sc-if>
@@ -686,7 +709,10 @@ const SEED = [
   {id:'p11',nombre:'Bujías iridio x4',marca:'NGK',codigo:'ILZKR7B-11S',categoria:'Motor',precio:38900,stock:12,destacado:false,vehiculos:'Ford Ka, Ford Fiesta, Ford Focus',descripcion:'Bujías de iridio de larga duración. Juego de 4.'},
   {id:'p12',nombre:'Cubre alfombras de goma x4',marca:'Ruta 40',codigo:'CA-UNIV',categoria:'Accesorios',precio:19900,stock:15,destacado:false,vehiculos:'',descripcion:'Universales, recortables. Color negro.'}
 ];
-const DEFAULT_SETTINGS = {alias:'multimarca.repuestos',cbu:'0000003100012345678901',banco:'Mercado Pago',titular:'Multimarca Repuestos del Automotor',whatsapp:'2622539851',envioNota:'El costo de envío se coordina por WhatsApp según la zona. Envíos a todo el Valle de Uco.'};
+const MARCAS = ['SKF','Fras-le','Sachs','Gulf','Mann','LuK','Moura','NGK','Fremax','Dolz','Fram','Bosch','Valeo','Gates'];
+// Categorías y marcas se editan desde el panel (Configuración) y viven en settings/store;
+// estas listas son el valor inicial mientras no se guarden otras.
+const DEFAULT_SETTINGS = {marcas: MARCAS, categorias: CATS, alias:'multimarca.repuestos',cbu:'0000003100012345678901',banco:'Mercado Pago',titular:'Multimarca Repuestos del Automotor',whatsapp:'2622539851',envioNota:'El costo de envío se coordina por WhatsApp según la zona. Envíos a todo el Valle de Uco.'};
 
 class LocalStore {
   constructor(){ this.products = SEED.map(p=>({...p})); this.settings = {...DEFAULT_SETTINGS}; this.orders = []; }
@@ -704,7 +730,7 @@ class LocalStore {
 
 const PAGE_SIZE = 10;
 const fmt = n => '$ ' + Math.round(n||0).toLocaleString('es-AR');
-const emptyPf = () => ({id:null,nombre:'',marca:'',codigo:'',categoria:CATS[0],precio:'',vehiculos:'',specs:'',descripcion:'',img:'',destacado:false});
+const emptyPf = () => ({id:null,nombre:'',marca:'',codigo:'',categoria:'',precio:'',vehiculos:'',specs:'',descripcion:'',img:'',destacado:false});
 
 class Component extends DCLogic {
   store = new LocalStore();
@@ -713,7 +739,7 @@ class Component extends DCLogic {
     products: [], loaded: false, settings: DEFAULT_SETTINGS, orders: [],
     selected:null, prevView:'home', qty:1, cartOpen:false, cart:[],
     orderDone:false, formError:'', copied:false, co:{nombre:'',entrega:'retiro',calle:'',localidad:'Tunuyán',cp:'',referencias:''}, pago:'efectivo', lastOrder:null,
-    admin:{logged:false,email:'',pass:'',error:'',name:''}, adminTab:'productos', adminQuery:'', catPage:{key:'',n:0}, ordersPage:0, pf: emptyPf(), sf: {...DEFAULT_SETTINGS},
+    admin:{logged:false,email:'',pass:'',error:'',name:''}, adminTab:'productos', adminQuery:'', catPage:{key:'',n:0}, ordersPage:0, listDraft:{}, pf: emptyPf(), sf: {...DEFAULT_SETTINGS},
     toast:''
   };
   async componentDidMount(){
@@ -807,6 +833,11 @@ class Component extends DCLogic {
     const pfSet = {}; ['nombre','marca','codigo','categoria','precio','vehiculos','specs','descripcion','destacado'].forEach(f=>pfSet[f]=fieldSetter('pf',f));
     const sfSet = {}; ['alias','cbu','banco','titular','whatsapp','envioNota'].forEach(f=>sfSet[f]=fieldSetter('sf',f));
     const coSet = {}; ['nombre','calle','localidad','cp','referencias'].forEach(f=>coSet[f]=fieldSetter('co',f));
+    const cats = s.settings.categorias || CATS, marcas = s.settings.marcas || MARCAS;
+    // Si el producto que se edita tiene una categoría que ya no está en la lista, se agrega
+    // al <select> para no cambiársela sin querer al guardar.
+    const pfCats = s.pf.categoria && !cats.includes(s.pf.categoria) ? [...cats, s.pf.categoria] : cats;
+    const pfCategoria = s.pf.categoria || cats[0] || '';
     const catCount = c => s.products.filter(p=>p.categoria===c).length;
     const entregaResumen = s.co.entrega==='envio' ? `Envío a ${s.co.calle}, ${s.co.localidad}${s.co.cp?' ('+s.co.cp+')':''}${s.co.referencias?' — '+s.co.referencias:''}. Costo a coordinar.` : 'Retiro en el local · Sargento Cabral 41, Tunuyán';
     const waLink = `https://wa.me/549${s.settings.whatsapp}?text=${encodeURIComponent('Hola Multimarca! Quiero pedir un presupuesto.')}`;
@@ -829,13 +860,13 @@ class Component extends DCLogic {
       searchVehicle:()=>{ const map={Volkswagen:'VW'}; const term = (s.vehModelo || map[s.vehMarca] || s.vehMarca).trim(); goCatalogWith({vehFilter: term||null, cat:'Todas', q:''}); },
       hasVehFilter: !!s.vehFilter, vehLabel: s.vehFilter, clearVehicle:()=>set({vehFilter:null}),
       // home
-      categoriasHome: CATS.map((c,i)=>({name:c, num:String(i+1).padStart(2,'0'), count:catCount(c), go:()=>goCatalogWith({cat:c, q:'', vehFilter:null})})),
+      categoriasHome: cats.map((c,i)=>({name:c, num:String(i+1).padStart(2,'0'), count:catCount(c), go:()=>goCatalogWith({cat:c, q:'', vehFilter:null})})),
       destacados: s.products.filter(p=>p.destacado).slice(0,4).map(p=>this.decorate(p)), hasDestacados: s.products.some(p=>p.destacado),
-      marcasRepuestos:['SKF','Fras-le','Sachs','Gulf','Mann','LuK','Moura','NGK','Fremax','Dolz','Fram','Bosch','Valeo','Gates'],
+      marcasRepuestos: marcas, hasMarcas: marcas.length>0,
       // catalog
       catalogTitle: s.vehFilter ? 'Para tu '+s.vehFilter : (s.q ? `“${s.q}”` : s.cat==='Todas' ? 'Todos los repuestos' : s.cat),
       resultCount: all.length, results, catPager: catPg.pager, noResults: s.loaded && all.length===0,
-      catChips: ['Todas',...CATS].map(c=>({name:c, bg:s.cat===c?'#111111':'#FFFFFF', color:s.cat===c?'#F7B500':'#111111', border:s.cat===c?'#111111':'#D6D6D1', go:()=>set({cat:c})})),
+      catChips: ['Todas',...cats].map(c=>({name:c, bg:s.cat===c?'#111111':'#FFFFFF', color:s.cat===c?'#F7B500':'#111111', border:s.cat===c?'#111111':'#D6D6D1', go:()=>set({cat:c})})),
       // product panel
       sel: sel||{}, qty:s.qty,
       qtyInc:()=>set({qty:s.qty+1}), qtyDec:()=>set({qty:Math.max(1,s.qty-1)}),
@@ -886,21 +917,39 @@ class Component extends DCLogic {
         e.preventDefault();
         if(s.pf.uploading) return this.showToast('Esperá a que termine de cargar la foto');
         const {uploading, ...pf} = s.pf;
-        const p = {...pf, precio:Number(pf.precio)||0};
+        const p = {...pf, categoria: pf.categoria || cats[0] || '', precio:Number(pf.precio)||0};
         const editing = !!p.id; if(!p.id) delete p.id;
         const ok = editing ? 'Producto actualizado' : 'Producto publicado';
         const refresh = async ()=>{ const products = await this.store.listProducts().catch(()=>s.products); set({products, pf:emptyPf()}); };
         try{ await this.store.saveProduct(p); await refresh(); this.showToast(ok); }
         catch(err){ this.showToast('No se pudo guardar: '+err.message); }
       },
-      categorias: CATS, adminQuery:s.adminQuery, setAdminQuery:(e)=>set({adminQuery:e.target.value}),
+      categorias: pfCats, pfCategoria, adminQuery:s.adminQuery, setAdminQuery:(e)=>set({adminQuery:e.target.value}),
       adminProducts: s.products.filter(p=>!s.adminQuery || [p.nombre,p.marca,p.codigo,p.categoria].join(' ').toLowerCase().includes(s.adminQuery.toLowerCase())).map(p=>this.decorate(p)),
       adminEmpty: !s.loaded || s.products.length===0 || !s.products.some(p=>!s.adminQuery || [p.nombre,p.marca,p.codigo,p.categoria].join(' ').toLowerCase().includes(s.adminQuery.toLowerCase())),
       adminEmptyMsg: !s.loaded ? 'Cargando productos…' : s.products.length===0 ? 'Todavía no hay productos cargados. Publicá el primero con el formulario.' : 'Ningún producto coincide con el filtro.',
       noOrders: s.orders.length===0,
       ordersPager: ordPg.pager,
       ordersPageView: ordPg.items.map(o=>({...o, totalFmt:fmt(o.total), entregaLabel:o.cliente.entrega==='envio'?`Envío: ${o.cliente.calle}, ${o.cliente.localidad}`:'Retiro en local', pagoLabel:o.pago==='efectivo'?'Efectivo':'Transferencia', resumen:o.items.map(i=>`${i.qty}× ${i.nombre}`).join(' · ')})),
-      sf:s.sf, sfSet, saveSettings: async (e)=>{ e.preventDefault(); try{ const settings = await this.store.saveSettings(s.sf); set({settings}); this.showToast('Configuración guardada'); }catch(err){ this.showToast('No se pudo guardar: '+err.message); } }
+      listEditors: [
+        {key:'categorias', title:'Categorías', placeholder:'Nueva categoría (ej. Carrocería)', emptyMsg:'Sin categorías: el catálogo muestra solo “Todas”.', count:true},
+        {key:'marcas', title:'Marcas', placeholder:'Nueva marca (ej. Bosch)', emptyMsg:'Sin marcas: la sección “Trabajamos con” no se muestra.'}
+      ].map(L=>{
+        const list = s.sf[L.key] || [], draft = s.listDraft[L.key] || '';
+        return {...L, draft, empty: list.length===0,
+          setDraft:(e)=>set({listDraft:{...s.listDraft, [L.key]:e.target.value}}),
+          add:(e)=>{ e.preventDefault(); const v = draft.trim().replace(/\s+/g,' ');
+            if(!v) return;
+            if(L.key==='categorias' && v.toLowerCase()==='todas') return this.showToast('“Todas” ya existe como filtro del catálogo');
+            if(list.some(x=>x.toLowerCase()===v.toLowerCase())) return this.showToast(`“${v}” ya está en la lista`);
+            set({sf:{...s.sf, [L.key]:[...list, v]}, listDraft:{...s.listDraft, [L.key]:''}}); },
+          items: list.map(name=>{ const n = L.count ? catCount(name) : 0;
+            return {name, sub: L.count ? `· ${n}` : '',
+              remove:()=>{ if(n && !confirm(`“${name}” tiene ${n} producto(s). Van a seguir en “Todas”, pero sin esta categoría en el menú. ¿Quitarla?`)) return;
+                set({sf:{...s.sf, [L.key]:list.filter(x=>x!==name)}}); } }; }) };
+      }),
+      listsDirty: ['categorias','marcas'].some(k=>JSON.stringify(s.sf[k]||[])!==JSON.stringify(s.settings[k]||[])),
+      sf:s.sf, sfSet, saveSettings: async (e)=>{ e&&e.preventDefault&&e.preventDefault(); try{ const settings = await this.store.saveSettings(s.sf); set({settings}); this.showToast('Configuración guardada'); }catch(err){ this.showToast('No se pudo guardar: '+err.message); } }
     };
   }
 }
