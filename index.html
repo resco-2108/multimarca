@@ -13,12 +13,12 @@
 <meta property="og:title" content="Multimarca · Repuestos del Automotor">
 <meta property="og:description" content="El repuesto que buscás, hoy mismo 🔧 Sargento Cabral 41, Tunuyán. Retiro en local o envío.">
 <meta property="og:url" content="https://multimarca.rubenescobar-2108.workers.dev/">
-<meta property="og:image" content="https://multimarca.rubenescobar-2108.workers.dev/assets/og-small.jpg">
+<meta property="og:image" content="https://multimarca.rubenescobar-2108.workers.dev/assets/og-v2.jpg">
 <meta property="og:image:type" content="image/jpeg">
-<meta property="og:image:width" content="240">
-<meta property="og:image:height" content="240">
+<meta property="og:image:width" content="600">
+<meta property="og:image:height" content="600">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://multimarca.rubenescobar-2108.workers.dev/assets/og-small.jpg">
+<meta name="twitter:image" content="https://multimarca.rubenescobar-2108.workers.dev/assets/og-v2.jpg">
 <script src="./firebase-config.js"></script>
 <script src="./support.js"></script>
 </head>
@@ -505,23 +505,9 @@
           </div>
         </sc-if>
 
-        <!-- Tab: configuración -->
-        <sc-if value="{{ tabConfig }}" hint-placeholder-val="{{ false }}">
-          <form onSubmit="{{ saveSettings }}" style="margin-top:24px;max-width:640px;background:#FFFFFF;border:1px solid #E1E1DC;border-radius:14px;padding:24px;display:grid;gap:14px">
-            <div style="font-family:'Barlow Condensed';font-weight:800;font-size:24px;text-transform:uppercase;line-height:1">Datos para transferencia</div>
-            <div style="color:#6B6B6B;font-size:13px;margin-top:-8px">Se muestran al cliente al elegir pagar por transferencia.</div>
-            <label style="display:grid;gap:5px;font-size:12px;color:#5C5C5C;font-weight:600">Alias<input value="{{ sf.alias }}" onChange="{{ sfSet.alias }}" placeholder="multimarca.repuestos" style="background:#F6F6F4;color:#111111;font-weight:700;border:1px solid #C6C6C0;border-radius:8px;padding:12px 14px;font-size:18px;font-family:'Barlow Condensed';letter-spacing:.02em"></label>
-            <div data-r="two" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-              <label style="display:grid;gap:5px;font-size:12px;color:#5C5C5C;font-weight:600">CBU / CVU<input value="{{ sf.cbu }}" onChange="{{ sfSet.cbu }}" style="background:#F6F6F4;color:#111111;border:1px solid #C6C6C0;border-radius:8px;padding:11px 12px;font-size:14px"></label>
-              <label style="display:grid;gap:5px;font-size:12px;color:#5C5C5C;font-weight:600">Banco / Billetera<input value="{{ sf.banco }}" onChange="{{ sfSet.banco }}" style="background:#F6F6F4;color:#111111;border:1px solid #C6C6C0;border-radius:8px;padding:11px 12px;font-size:14px"></label>
-            </div>
-            <label style="display:grid;gap:5px;font-size:12px;color:#5C5C5C;font-weight:600">Titular<input value="{{ sf.titular }}" onChange="{{ sfSet.titular }}" style="background:#F6F6F4;color:#111111;border:1px solid #C6C6C0;border-radius:8px;padding:11px 12px;font-size:14px"></label>
-            <div style="font-family:'Barlow Condensed';font-weight:800;font-size:24px;text-transform:uppercase;line-height:1;margin-top:10px">Contacto y envíos</div>
-            <label style="display:grid;gap:5px;font-size:12px;color:#5C5C5C;font-weight:600">WhatsApp (con código de área)<input value="{{ sf.whatsapp }}" onChange="{{ sfSet.whatsapp }}" style="background:#F6F6F4;color:#111111;border:1px solid #C6C6C0;border-radius:8px;padding:11px 12px;font-size:14px"></label>
-            <label style="display:grid;gap:5px;font-size:12px;color:#5C5C5C;font-weight:600">Nota de envío (se muestra en el checkout)<textarea value="{{ sf.envioNota }}" onChange="{{ sfSet.envioNota }}" rows="2" style="background:#F6F6F4;color:#111111;border:1px solid #C6C6C0;border-radius:8px;padding:11px 12px;font-size:14px;resize:vertical"></textarea></label>
-            <button type="submit" style="background:#F7B500;color:#0B0B0B;border:0;padding:13px;border-radius:8px;cursor:pointer;font-family:'Barlow Condensed';font-weight:800;font-size:19px;text-transform:uppercase" style-hover="background:#FFD23F">Guardar configuración</button>
-          </form>
-          <div style="margin-top:18px;max-width:640px;background:#FFFFFF;border:1px solid #E1E1DC;border-radius:14px;padding:24px;display:grid;gap:14px">
+        <!-- Tab: categorías y marcas -->
+        <sc-if value="{{ tabListas }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:24px;max-width:640px;background:#FFFFFF;border:1px solid #E1E1DC;border-radius:14px;padding:24px;display:grid;gap:14px">
             <div style="font-family:'Barlow Condensed';font-weight:800;font-size:24px;text-transform:uppercase;line-height:1">Categorías y marcas</div>
             <div style="color:#6B6B6B;font-size:13px;margin-top:-8px">Las categorías arman el menú del catálogo y el inicio; las marcas, la sección “Trabajamos con”.</div>
             <sc-for list="{{ listEditors }}" as="L" hint-placeholder-count="2">
@@ -542,6 +528,24 @@
             <sc-if value="{{ listsDirty }}" hint-placeholder-val="{{ false }}"><div style="color:#B07F00;font-size:13px;font-weight:600">Tenés cambios sin guardar.</div></sc-if>
             <button type="button" onClick="{{ saveSettings }}" style="background:#F7B500;color:#0B0B0B;border:0;padding:13px;border-radius:8px;cursor:pointer;font-family:'Barlow Condensed';font-weight:800;font-size:19px;text-transform:uppercase" style-hover="background:#FFD23F">Guardar categorías y marcas</button>
           </div>
+        </sc-if>
+
+        <!-- Tab: configuración -->
+        <sc-if value="{{ tabConfig }}" hint-placeholder-val="{{ false }}">
+          <form onSubmit="{{ saveSettings }}" style="margin-top:24px;max-width:640px;background:#FFFFFF;border:1px solid #E1E1DC;border-radius:14px;padding:24px;display:grid;gap:14px">
+            <div style="font-family:'Barlow Condensed';font-weight:800;font-size:24px;text-transform:uppercase;line-height:1">Datos para transferencia</div>
+            <div style="color:#6B6B6B;font-size:13px;margin-top:-8px">Se muestran al cliente al elegir pagar por transferencia.</div>
+            <label style="display:grid;gap:5px;font-size:12px;color:#5C5C5C;font-weight:600">Alias<input value="{{ sf.alias }}" onChange="{{ sfSet.alias }}" placeholder="multimarca.repuestos" style="background:#F6F6F4;color:#111111;font-weight:700;border:1px solid #C6C6C0;border-radius:8px;padding:12px 14px;font-size:18px;font-family:'Barlow Condensed';letter-spacing:.02em"></label>
+            <div data-r="two" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+              <label style="display:grid;gap:5px;font-size:12px;color:#5C5C5C;font-weight:600">CBU / CVU<input value="{{ sf.cbu }}" onChange="{{ sfSet.cbu }}" style="background:#F6F6F4;color:#111111;border:1px solid #C6C6C0;border-radius:8px;padding:11px 12px;font-size:14px"></label>
+              <label style="display:grid;gap:5px;font-size:12px;color:#5C5C5C;font-weight:600">Banco / Billetera<input value="{{ sf.banco }}" onChange="{{ sfSet.banco }}" style="background:#F6F6F4;color:#111111;border:1px solid #C6C6C0;border-radius:8px;padding:11px 12px;font-size:14px"></label>
+            </div>
+            <label style="display:grid;gap:5px;font-size:12px;color:#5C5C5C;font-weight:600">Titular<input value="{{ sf.titular }}" onChange="{{ sfSet.titular }}" style="background:#F6F6F4;color:#111111;border:1px solid #C6C6C0;border-radius:8px;padding:11px 12px;font-size:14px"></label>
+            <div style="font-family:'Barlow Condensed';font-weight:800;font-size:24px;text-transform:uppercase;line-height:1;margin-top:10px">Contacto y envíos</div>
+            <label style="display:grid;gap:5px;font-size:12px;color:#5C5C5C;font-weight:600">WhatsApp (con código de área)<input value="{{ sf.whatsapp }}" onChange="{{ sfSet.whatsapp }}" style="background:#F6F6F4;color:#111111;border:1px solid #C6C6C0;border-radius:8px;padding:11px 12px;font-size:14px"></label>
+            <label style="display:grid;gap:5px;font-size:12px;color:#5C5C5C;font-weight:600">Nota de envío (se muestra en el checkout)<textarea value="{{ sf.envioNota }}" onChange="{{ sfSet.envioNota }}" rows="2" style="background:#F6F6F4;color:#111111;border:1px solid #C6C6C0;border-radius:8px;padding:11px 12px;font-size:14px;resize:vertical"></textarea></label>
+            <button type="submit" style="background:#F7B500;color:#0B0B0B;border:0;padding:13px;border-radius:8px;cursor:pointer;font-family:'Barlow Condensed';font-weight:800;font-size:19px;text-transform:uppercase" style-hover="background:#FFD23F">Guardar configuración</button>
+          </form>
         </sc-if>
       </div>
     </sc-if>
@@ -904,8 +908,8 @@ class Component extends DCLogic {
       setAdminEmail:(e)=>set({admin:{...s.admin,email:e.target.value}}), setAdminPass:(e)=>set({admin:{...s.admin,pass:e.target.value}}),
       adminLogin: async (e)=>{ e.preventDefault(); try{ const u = await this.store.signIn(s.admin.email, s.admin.pass); set({admin:{...s.admin,logged:true,error:'',pass:'',name:u.name}}); }catch(err){ set({admin:{...s.admin,error:err.message}}); } },
       adminLogout:()=>{ if(this.store.signOut) this.store.signOut().catch(()=>{}); set({admin:{logged:false,email:'',pass:'',error:'',name:''}, orders:[], view:'home'}); },
-      adminTabs:[['productos','Productos'],['pedidos','Pedidos'],['config','Configuración']].map(([k,label])=>({label, border:s.adminTab===k?'#F7B500':'transparent', color:s.adminTab===k?'#F7B500':'#5C5C5C', go:()=>set({adminTab:k})})),
-      tabProductos:s.adminTab==='productos', tabPedidos:s.adminTab==='pedidos', tabConfig:s.adminTab==='config',
+      adminTabs:[['productos','Productos'],['listas','Categorías y marcas'],['pedidos','Pedidos'],['config','Configuración']].map(([k,label])=>({label, border:s.adminTab===k?'#F7B500':'transparent', color:s.adminTab===k?'#F7B500':'#5C5C5C', go:()=>set({adminTab:k})})),
+      tabProductos:s.adminTab==='productos', tabPedidos:s.adminTab==='pedidos', tabConfig:s.adminTab==='config', tabListas:s.adminTab==='listas',
       pf:s.pf, pfSet, pfHasImg: !!s.pf.img, pfNoImg: !s.pf.img, pfImgLabel: s.pf.uploading ? 'procesando…' : 'sin foto', editing: !!s.pf.id, formTitle: s.pf.id?'Editar producto':'Nuevo producto', formCta: s.pf.id?'Guardar cambios':'Publicar producto',
       // La foto se achica en el navegador y va dentro del documento (no hay Storage).
       pfImage:(e)=>{ const f=e.target.files&&e.target.files[0]; if(!f) return; e.target.value='';
