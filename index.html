@@ -195,7 +195,7 @@
         <sc-for list="{{ destacados }}" as="p" hint-placeholder-count="4">
           <div onClick="{{ p.open }}" style="background:#FFFFFF;border:1px solid #E1E1DC;border-radius:12px;overflow:hidden;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.04);display:flex;flex-direction:column;transition:transform .2s,border-color .2s,box-shadow .2s" style-hover="transform:translateY(-4px);border-color:#111111;box-shadow:0 16px 34px rgba(0,0,0,.12)">
             <div style="aspect-ratio:4/3;background:linear-gradient(160deg,#EDEDEA,#DCDCD7);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden">
-              <sc-if value="{{ p.hasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ p.img }}" alt="{{ p.nombre }}" style="width:100%;height:100%;object-fit:cover;display:block"></sc-if>
+              <sc-if value="{{ p.hasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ p.img }}" alt="{{ p.nombre }}" style="width:100%;height:100%;object-fit:contain;background:#FFFFFF;padding:10px;box-sizing:border-box;display:block"></sc-if>
               <sc-if value="{{ p.noImg }}" hint-placeholder-val="{{ true }}"><span data-r="ph" style="font-family:'Barlow Condensed';font-weight:900;font-style:italic;font-size:64px;color:#C6C6C0;text-transform:uppercase">{{ p.categoria }}</span></sc-if>
               <span style="position:absolute;top:10px;left:10px;background:#F7B500;color:#0B0B0B;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;padding:4px 8px;border-radius:4px">{{ p.marca }}</span>
             </div>
@@ -267,7 +267,7 @@
       <sc-for list="{{ results }}" as="p" hint-placeholder-count="8">
         <div onClick="{{ p.open }}" style="background:#FFFFFF;border:1px solid #E1E1DC;border-radius:12px;overflow:hidden;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.04);display:flex;flex-direction:column;transition:transform .2s,border-color .2s,box-shadow .2s" style-hover="transform:translateY(-4px);border-color:#111111;box-shadow:0 16px 34px rgba(0,0,0,.12)">
           <div style="aspect-ratio:4/3;background:linear-gradient(160deg,#EDEDEA,#DCDCD7);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden">
-            <sc-if value="{{ p.hasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ p.img }}" alt="{{ p.nombre }}" style="width:100%;height:100%;object-fit:cover;display:block"></sc-if>
+            <sc-if value="{{ p.hasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ p.img }}" alt="{{ p.nombre }}" style="width:100%;height:100%;object-fit:contain;background:#FFFFFF;padding:10px;box-sizing:border-box;display:block"></sc-if>
             <sc-if value="{{ p.noImg }}" hint-placeholder-val="{{ true }}"><span data-r="ph" style="font-family:'Barlow Condensed';font-weight:900;font-style:italic;font-size:64px;color:#C6C6C0;text-transform:uppercase">{{ p.categoria }}</span></sc-if>
             <span style="position:absolute;top:10px;left:10px;background:#F7B500;color:#0B0B0B;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;padding:4px 8px;border-radius:4px">{{ p.marca }}</span>
           </div>
@@ -305,7 +305,7 @@
       <a data-r="tlink" href="#" onClick="{{ backFromProduct }}" style="display:inline-flex;align-items:center;gap:8px;color:#5C5C5C;font-weight:600;font-size:14px" style-hover="color:#111111">← Volver a {{ backLabel }}</a>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:48px;margin-top:22px;align-items:start">
         <div style="aspect-ratio:1/1;border-radius:16px;background:linear-gradient(160deg,#EDEDEA,#DCDCD7);border:1px solid #E1E1DC;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative">
-          <sc-if value="{{ sel.hasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ sel.img }}" alt="{{ sel.nombre }}" style="width:100%;height:100%;object-fit:cover;display:block"></sc-if>
+          <sc-if value="{{ sel.hasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ sel.img }}" alt="{{ sel.nombre }}" style="width:100%;height:100%;object-fit:contain;background:#FFFFFF;padding:20px;box-sizing:border-box;display:block"></sc-if>
           <sc-if value="{{ sel.noImg }}" hint-placeholder-val="{{ true }}"><span data-r="ph-lg" style="font-family:'Barlow Condensed';font-weight:900;font-style:italic;font-size:72px;color:#C6C6C0;text-transform:uppercase;text-align:center;padding:20px">{{ sel.categoria }}</span></sc-if>
           <span style="position:absolute;top:14px;left:14px;background:#F7B500;color:#111111;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;padding:5px 10px;border-radius:4px">{{ sel.marca }}</span>
         </div>
@@ -366,7 +366,7 @@
             <sc-for list="{{ related }}" as="p" hint-placeholder-count="4">
               <div onClick="{{ p.open }}" style="background:#FFFFFF;border:1px solid #E1E1DC;border-radius:12px;overflow:hidden;cursor:pointer;display:flex;flex-direction:column;transition:transform .2s,border-color .2s" style-hover="transform:translateY(-4px);border-color:#F7B500">
                 <div style="aspect-ratio:4/3;background:linear-gradient(160deg,#EDEDEA,#DCDCD7);display:flex;align-items:center;justify-content:center;overflow:hidden">
-                  <sc-if value="{{ p.hasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ p.img }}" alt="{{ p.nombre }}" style="width:100%;height:100%;object-fit:cover;display:block"></sc-if>
+                  <sc-if value="{{ p.hasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ p.img }}" alt="{{ p.nombre }}" style="width:100%;height:100%;object-fit:contain;background:#FFFFFF;padding:10px;box-sizing:border-box;display:block"></sc-if>
                   <sc-if value="{{ p.noImg }}" hint-placeholder-val="{{ true }}"><span data-r="ph" style="font-family:'Barlow Condensed';font-weight:900;font-style:italic;font-size:48px;color:#C6C6C0;text-transform:uppercase">{{ p.categoria }}</span></sc-if>
                 </div>
                 <div style="padding:12px 14px 14px;display:flex;flex-direction:column;gap:4px">
@@ -427,7 +427,7 @@
               <label style="display:grid;gap:5px;font-size:12px;color:#5C5C5C;font-weight:600">Foto
                 <div style="display:flex;gap:12px;align-items:center">
                   <div style="width:72px;height:72px;border-radius:8px;background:#F6F6F4;border:1px dashed #BDBBB3;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-                    <sc-if value="{{ pfHasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ pf.img }}" alt="" style="width:100%;height:100%;object-fit:cover"></sc-if>
+                    <sc-if value="{{ pfHasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ pf.img }}" alt="" style="width:100%;height:100%;object-fit:contain;background:#FFFFFF;padding:3px;box-sizing:border-box;display:block"></sc-if>
                     <sc-if value="{{ pfNoImg }}" hint-placeholder-val="{{ true }}"><span style="color:#6B6B6B;font-size:11px">{{ pfImgLabel }}</span></sc-if>
                   </div>
                   <input type="file" accept="image/*" onChange="{{ pfImage }}" style="color:#5C5C5C;font-size:12px;min-width:0">
@@ -460,7 +460,7 @@
               <sc-for list="{{ adminProducts }}" as="p" hint-placeholder-count="6">
                 <div data-r="admin-row" style="background:#FFFFFF;border:1px solid #E1E1DC;border-radius:10px;padding:12px 14px;display:grid;grid-template-columns:56px minmax(0,1fr) auto;gap:14px;align-items:center">
                   <div style="width:56px;height:56px;border-radius:6px;background:#F6F6F4;overflow:hidden;display:flex;align-items:center;justify-content:center">
-                    <sc-if value="{{ p.hasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ p.img }}" alt="" style="width:100%;height:100%;object-fit:cover"></sc-if>
+                    <sc-if value="{{ p.hasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ p.img }}" alt="" style="width:100%;height:100%;object-fit:contain;background:#FFFFFF;padding:3px;box-sizing:border-box;display:block"></sc-if>
                     <sc-if value="{{ p.noImg }}" hint-placeholder-val="{{ true }}"><span style="color:#BDBBB3;font-family:'Barlow Condensed';font-weight:900;font-size:22px">{{ p.inicial }}</span></sc-if>
                   </div>
                   <div style="min-width:0">
@@ -582,7 +582,7 @@
         <sc-for list="{{ cartView }}" as="i" hint-placeholder-count="0">
           <div data-r="cart-row" style="display:grid;grid-template-columns:60px minmax(0,1fr) auto auto;gap:12px;align-items:center;background:#FFFFFF;border:1px solid #E1E1DC;border-radius:12px;padding:10px">
             <div style="width:60px;height:60px;border-radius:8px;background:#EDEDEA;overflow:hidden;display:flex;align-items:center;justify-content:center">
-              <sc-if value="{{ i.hasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ i.img }}" alt="" style="width:100%;height:100%;object-fit:cover"></sc-if>
+              <sc-if value="{{ i.hasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ i.img }}" alt="" style="width:100%;height:100%;object-fit:contain;background:#FFFFFF;padding:3px;box-sizing:border-box;display:block"></sc-if>
               <sc-if value="{{ i.noImg }}" hint-placeholder-val="{{ true }}"><span style="color:#C6C6C0;font-family:'Barlow Condensed';font-weight:900;font-size:24px">{{ i.inicial }}</span></sc-if>
             </div>
             <div style="min-width:0">
