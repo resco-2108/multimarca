@@ -1,0 +1,9 @@
+# Cabeceras de Cloudflare para los assets estáticos (no se publica como archivo).
+# HTML y JS quedan con la revalidación por defecto, así un deploy se ve enseguida.
+# Imágenes no cambian seguido: 7 días de caché y hasta 30 más sirviendo la copia
+# vieja mientras se revalida. Si se reemplaza una imagen, conviene subirla con
+# otro nombre para que se vea al instante.
+/assets/*
+  Cache-Control: public, max-age=604800, stale-while-revalidate=2592000
+/sw.js
+  Cache-Control: no-cache

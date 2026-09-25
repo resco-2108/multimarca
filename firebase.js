@@ -1,8 +1,8 @@
 // ============================================================
 //  Multimarca — Capa de datos Firebase (producción)
 //  Módulo ES con la MISMA interfaz que LocalStore (index.html):
-//    listProducts, saveProduct, deleteProduct,
-//    getSettings, saveSettings,
+//    listProducts({cache}), saveProduct, deleteProduct,
+//    getSettings({cache}), saveSettings,
 //    createOrder, listOrders,
 //    signIn  (+ signOut, onAuth)
 //
@@ -15,23 +15,20 @@
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import {
-  getFirestore, collection, getDocs, doc, getDoc, setDoc, addDoc,
-  deleteDoc, query, orderBy, serverTimestamp
+  getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager,
+  collection, getDocs, getDocsFromCache, doc, getDoc, getDocFromCache, setDoc, addDoc,
+  deleteDoc, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import {
   getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import {
-  getStorage, ref, uploadString, getDownloadURL
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
-import { getAnalytics, isSupported } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js";
 
 const PRODUCTS = 'products';
 const ORDERS   = 'orders';
 const SETTINGS = 'settings';
 const SETTINGS_DOC = 'store';
 
-let app, db, auth, storage;
+let app, db, auth;
 
 function init(){
   if (app) return true;
@@ -41,33 +38,68 @@ function init(){
     return false;
   }
   app = initializeApp(cfg);
-  db = getFirestore(app);
+  // Caché persistente (IndexedDB): lo último que se leyó queda guardado en el
+  // navegador, así con conexión lenta la tienda arranca con eso y después se
+  // actualiza. Si IndexedDB no está disponible (algunas ventanas privadas)
+  // se sigue con el caché en memoria de siempre.
+  try {
+    db = initializeFirestore(app, { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }) });
+  } catch(e){
+    console.warn('[multimarca] Caché local de Firestore no disponible:', e.message);
+    db = getFirestore(app);
+  }
   auth = getAuth(app);
-  storage = getStorage(app);
-  // Analytics solo donde el navegador lo soporta (https, sin bloqueadores).
-  isSupported().then(ok => { if (ok) { try { getAnalytics(app); } catch(e){} } }).catch(()=>{});
+  // Analytics aparte y sin bloquear: no hace falta para mostrar la tienda.
+  import("https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js")
+    .then(m => m.isSupported().then(ok => { if (ok) m.getAnalytics(app); }))
+    .catch(()=>{});
   return true;
 }
 
 // ---- helpers ----
 const rows = snap => snap.docs.map(d => ({ id: d.id, ...d.data() }));
+const millis = t => (t && t.toMillis) ? t.toMillis() : Number.MAX_SAFE_INTEGER; // recién creado (serverTimestamp pendiente) va primero
 
-// Lee una colección ordenada; si el campo de orden no existe en ningún doc,
-// Firestore devuelve vacío sin error, así que reintentamos sin ordenar.
-async function readAll(name, field = 'createdAt', dir = 'desc'){
-  try {
-    const snap = await getDocs(query(collection(db, name), orderBy(field, dir)));
-    if (!snap.empty) return rows(snap);
-  } catch(e){}
-  return rows(await getDocs(collection(db, name)));
+// Más nuevos primero. Se ordena en el cliente para que la misma lectura sirva
+// desde el caché y desde el servidor (y los docs sin createdAt no se pierdan).
+// { cache: true } lee solo el caché local (instantáneo, sin red); si no hay
+// nada guardado devuelve []. Sin opciones va al servidor.
+async function readAll(name, { cache = false } = {}){
+  const ref = collection(db, name);
+  const list = rows(await (cache ? getDocsFromCache(ref) : getDocs(ref)));
+  return list.sort((a, b) => millis(b.createdAt) - millis(a.createdAt));
 }
 
-async function uploadImage(pid, dataUrl){
-  const mime = (dataUrl.match(/^data:([^;]+);/) || [])[1] || 'image/jpeg';
-  const ext = (mime.split('/')[1] || 'jpg').replace('jpeg', 'jpg').replace('svg+xml', 'svg');
-  const r = ref(storage, `${PRODUCTS}/${pid}-${Date.now()}.${ext}`);
-  await uploadString(r, dataUrl, 'data_url');
-  return getDownloadURL(r);
+// ---- Imágenes ----
+// El proyecto no usa Firebase Storage, así que la foto se guarda dentro del
+// propio documento como data URL JPEG. Firestore limita cada documento a
+// 1 MiB: se achica la foto hasta que entre con margen para el resto de los campos.
+const IMG_MAX_BYTES = 700 * 1024;
+export async function compressImg(file, maxSide = 900){
+  if (!file || !/^image\//.test(file.type || '')) throw new Error('El archivo no es una imagen.');
+  const src = await new Promise((res, rej) => {
+    const url = URL.createObjectURL(file);
+    const im = new Image();
+    im.onload = () => { URL.revokeObjectURL(url); res(im); };
+    im.onerror = () => { URL.revokeObjectURL(url); rej(new Error('No se pudo leer la imagen (probá con JPG o PNG).')); };
+    im.src = url;
+  });
+  let side = maxSide;
+  for (let i = 0; i < 6; i++) {
+    const k = Math.min(1, side / Math.max(src.naturalWidth, src.naturalHeight));
+    const w = Math.max(1, Math.round(src.naturalWidth * k)), h = Math.max(1, Math.round(src.naturalHeight * k));
+    const cv = document.createElement('canvas');
+    cv.width = w; cv.height = h;
+    const cx = cv.getContext('2d');
+    cx.fillStyle = '#fff'; cx.fillRect(0, 0, w, h); // PNG con transparencia -> fondo blanco
+    cx.drawImage(src, 0, 0, w, h);
+    for (const q of [0.82, 0.7, 0.58]) {
+      const data = cv.toDataURL('image/jpeg', q);
+      if (data.length <= IMG_MAX_BYTES) return data;
+    }
+    side = Math.round(side * 0.75);
+  }
+  throw new Error('La imagen es demasiado pesada, probá con otra.');
 }
 
 const AUTH_ERRORS = {
@@ -80,24 +112,6 @@ const AUTH_ERRORS = {
   'auth/network-request-failed': 'Sin conexión. Revisá tu internet'
 };
 
-// Storage puede no existir todavía: el bucket se crea a mano en la consola
-// (paso 1 del README-deploy.md). Sin bucket, el SDK tira storage/unknown.
-const STORAGE_ERRORS = {
-  'storage/unknown':              'falta crear el bucket de Storage en Firebase',
-  'storage/object-not-found':     'falta crear el bucket de Storage en Firebase',
-  'storage/bucket-not-found':     'falta crear el bucket de Storage en Firebase',
-  'storage/no-default-bucket':    'falta crear el bucket de Storage en Firebase',
-  'storage/project-not-found':    'falta crear el bucket de Storage en Firebase',
-  'storage/unauthorized':         'Storage rechazó la foto: reglas sin desplegar, o pesa más de 8 MB',
-  'storage/unauthenticated':      'volvé a iniciar sesión para subir fotos',
-  'storage/quota-exceeded':       'se llenó la cuota de Storage',
-  'storage/retry-limit-exceeded': 'se cortó la subida. Revisá la conexión',
-  'storage/canceled':             'se canceló la subida'
-};
-
-const storageMessage = err =>
-  STORAGE_ERRORS[err && err.code] || (err && err.message) || 'no se pudo subir la foto';
-
 const asUser = u => u ? { email: u.email, name: u.displayName || 'Multimarca', uid: u.uid } : null;
 
 // ============================================================
@@ -106,34 +120,26 @@ const asUser = u => u ? { email: u.email, name: u.displayName || 'Multimarca', u
 class FirestoreStore {
 
   // ---------- catálogo ----------
-  async listProducts(){
-    return readAll(PRODUCTS);
+  async listProducts(opts){
+    return readAll(PRODUCTS, opts);
   }
 
+  // `img` llega ya comprimida desde el panel (compressImg) y se guarda tal cual.
   async saveProduct(p){
     const { id, ...rest } = p;
     const pid = id || doc(collection(db, PRODUCTS)).id;
     rest.precio = Number(rest.precio) || 0;
     rest.stock = Number(rest.stock) || 0;
     rest.destacado = !!rest.destacado;
-    // La foto va a Storage antes que el documento, pero su fallo no debe costar el
-    // producto: guardamos igual sin tocar `img` (con merge queda la foto anterior si
-    // había) y avisamos después con err.productSaved, para que el panel lo distinga
-    // de un guardado que nunca ocurrió.
-    let imgError = null;
-    if (rest.img && rest.img.startsWith('data:')) {
-      try {
-        rest.img = await uploadImage(pid, rest.img);
-      } catch(err){
-        imgError = storageMessage(err);
-        delete rest.img;
-      }
-    }
+    rest.img = rest.img || '';
     if (!id) rest.createdAt = serverTimestamp();
     rest.updatedAt = serverTimestamp();
     await setDoc(doc(db, PRODUCTS, pid), rest, { merge: true });
-    if (imgError){ const e = new Error(imgError); e.productSaved = true; throw e; }
-    return { ...p, id: pid, img: rest.img || '' };
+    return { ...p, id: pid };
+  }
+
+  compressImg(file){
+    return compressImg(file);
   }
 
   async deleteProduct(id){
@@ -141,8 +147,11 @@ class FirestoreStore {
   }
 
   // ---------- configuración de la tienda ----------
-  async getSettings(){
-    const d = await getDoc(doc(db, SETTINGS, SETTINGS_DOC));
+  async getSettings({ cache = false } = {}){
+    const ref = doc(db, SETTINGS, SETTINGS_DOC);
+    let d;
+    try { d = await (cache ? getDocFromCache(ref) : getDoc(ref)); }
+    catch(e){ if (cache) return null; throw e; } // getDocFromCache falla si no está guardado
     return d.exists() ? d.data() : null;
   }
 
